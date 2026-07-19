@@ -1,0 +1,132 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1160 560" font-family="-apple-system,'Segoe UI',Helvetica,Arial,sans-serif">
+  <style>
+    .canvas{fill:#ffffff;stroke:#e2e8f0}
+    .edge{fill:none;stroke:#64748b;stroke-width:1.6}
+    .edgeDash{fill:none;stroke:#94a3b8;stroke-width:1.4;stroke-dasharray:5 4}
+    .arrowhead{fill:#64748b}
+    .arrowheadDash{fill:#94a3b8}
+    .lbl{font-style:italic;fill:#475569;stroke:#ffffff;stroke-width:4px;paint-order:stroke;stroke-linejoin:round}
+    .panel{fill:#f8fafc;stroke:#cbd5e1;stroke-dasharray:6 4}
+    .panelLbl{fill:#64748b}
+    .poolPanel{fill:#eff6ff;stroke:#93c5fd;stroke-dasharray:6 4}
+    .poolLbl{fill:#3b82f6}
+    .node{fill:#f1f5f9;stroke:#475569;stroke-width:1.6}
+    .nodeTxt{fill:#0f172a}.nodeSub{fill:#64748b}
+    .gw{fill:#ccfbf1;stroke:#0d9488;stroke-width:2}
+    .gwTxt{fill:#134e4a}.gwSub{fill:#0f766e}
+    .blu{fill:#dbeafe;stroke:#3b82f6;stroke-width:1.8}
+    .bluTxt{fill:#1e40af}.bluSub{fill:#1d4ed8}
+    .cylBody{fill:#f1f5f9;stroke:#94a3b8;stroke-width:1.6}
+    .cylTop{fill:#e2e8f0;stroke:#94a3b8;stroke-width:1.6}
+    .cylTxt{fill:#334155}.cylSub{fill:#64748b}
+    .prom{fill:#fff7ed;stroke:#f97316;stroke-width:1.8}
+    .promTxt{fill:#9a3412}.promSub{fill:#c2410c}
+    @media (prefers-color-scheme: dark){
+      .canvas{fill:#0d1117;stroke:#30363d}
+      .edge{stroke:#8b949e}
+      .edgeDash{stroke:#6e7681}
+      .arrowhead{fill:#8b949e}
+      .arrowheadDash{fill:#6e7681}
+      .lbl{fill:#8b949e;stroke:#0d1117}
+      .panel{fill:#161b22;stroke:#30363d}
+      .panelLbl{fill:#8b949e}
+      .poolPanel{fill:#0c2038;stroke:#1f6feb}
+      .poolLbl{fill:#58a6ff}
+      .node{fill:#21262d;stroke:#8b949e}
+      .nodeTxt{fill:#e6edf3}.nodeSub{fill:#8b949e}
+      .gw{fill:#04302c;stroke:#2dd4bf}
+      .gwTxt{fill:#7ee8dc}.gwSub{fill:#5eead4}
+      .blu{fill:#132a4d;stroke:#388bfd}
+      .bluTxt{fill:#79c0ff}.bluSub{fill:#58a6ff}
+      .cylBody{fill:#161b22;stroke:#8b949e}
+      .cylTop{fill:#21262d;stroke:#8b949e}
+      .cylTxt{fill:#c9d1d9}.cylSub{fill:#8b949e}
+      .prom{fill:#331605;stroke:#db6d28}
+      .promTxt{fill:#ffa657}.promSub{fill:#f0883e}
+    }
+  </style>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" class="arrowhead"/>
+    </marker>
+    <marker id="arrowdash" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" class="arrowheadDash"/>
+    </marker>
+    <filter id="ds" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="1.5" stdDeviation="2" flood-color="#0f172a" flood-opacity="0.15"/>
+    </filter>
+  </defs>
+
+  <rect x="0" y="0" width="1160" height="560" rx="14" class="canvas"/>
+
+  <!-- developers group -->
+  <rect x="20" y="170" width="230" height="170" rx="12" class="panel"/>
+  <text x="135" y="196" text-anchor="middle" font-size="12" font-weight="700" class="panelLbl" letter-spacing="1">DEVELOPERS</text>
+  <rect x="45" y="215" width="180" height="98" rx="10" class="node" filter="url(#ds)"/>
+  <text x="135" y="252" text-anchor="middle" font-size="13.5" font-weight="600" class="nodeTxt">VS Code · JetBrains</text>
+  <text x="135" y="272" text-anchor="middle" font-size="13.5" font-weight="600" class="nodeTxt">CLI agents</text>
+  <text x="135" y="294" text-anchor="middle" font-size="11.5" class="nodeSub">Copilot BYOM · Cline · Aider</text>
+
+  <!-- cluster group -->
+  <rect x="300" y="20" width="840" height="520" rx="12" class="panel"/>
+  <text x="720" y="44" text-anchor="middle" font-size="12" font-weight="700" class="panelLbl" letter-spacing="1">ON-PREM KUBERNETES CLUSTER</text>
+
+  <!-- gateway -->
+  <rect x="340" y="200" width="210" height="110" rx="10" class="gw" filter="url(#ds)"/>
+  <text x="445" y="240" text-anchor="middle" font-size="14.5" font-weight="700" class="gwTxt">LiteLLM Gateway</text>
+  <text x="445" y="262" text-anchor="middle" font-size="12" class="gwSub">Deployment ×2</text>
+  <text x="445" y="280" text-anchor="middle" font-size="12" class="gwSub">+ Postgres (keys · budgets)</text>
+
+  <!-- GPU node pool group -->
+  <rect x="620" y="55" width="330" height="340" rx="12" class="poolPanel"/>
+  <text x="785" y="79" text-anchor="middle" font-size="12" font-weight="700" class="poolLbl" letter-spacing="1">GPU NODE POOL</text>
+
+  <rect x="650" y="95" width="270" height="80" rx="10" class="blu" filter="url(#ds)"/>
+  <text x="785" y="127" text-anchor="middle" font-size="13.5" font-weight="700" class="bluTxt">vLLM · qwen3-coder-30b</text>
+  <text x="785" y="150" text-anchor="middle" font-size="12" class="bluSub">×2 replicas · default tier</text>
+
+  <rect x="650" y="190" width="270" height="80" rx="10" class="blu" filter="url(#ds)"/>
+  <text x="785" y="222" text-anchor="middle" font-size="13.5" font-weight="700" class="bluTxt">vLLM · qwen2.5-coder-7b</text>
+  <text x="785" y="245" text-anchor="middle" font-size="12" class="bluSub">×1 replica · fast tier</text>
+
+  <rect x="650" y="285" width="270" height="80" rx="10" class="blu" filter="url(#ds)"/>
+  <text x="785" y="317" text-anchor="middle" font-size="13.5" font-weight="700" class="bluTxt">vLLM · r1-distill-32b</text>
+  <text x="785" y="340" text-anchor="middle" font-size="12" class="bluSub">×1 replica · reasoning tier</text>
+
+  <!-- NVMe cylinder -->
+  <path d="M990 213 v75 a62 13 0 0 0 124 0 v-75" class="cylBody"/>
+  <ellipse cx="1052" cy="213" rx="62" ry="13" class="cylTop"/>
+  <text x="1052" y="252" text-anchor="middle" font-size="12" font-weight="700" class="cylTxt">NVMe model</text>
+  <text x="1052" y="269" text-anchor="middle" font-size="12" font-weight="700" class="cylTxt">cache</text>
+  <text x="1052" y="286" text-anchor="middle" font-size="10.5" class="cylSub">hostPath / local PV</text>
+
+  <!-- prometheus -->
+  <rect x="340" y="420" width="210" height="85" rx="10" class="prom" filter="url(#ds)"/>
+  <text x="445" y="456" text-anchor="middle" font-size="13.5" font-weight="700" class="promTxt">Prometheus + Grafana</text>
+  <text x="445" y="478" text-anchor="middle" font-size="12" class="promSub">TTFT · TPOT · queue depth</text>
+
+  <!-- solid edges -->
+  <g class="edge">
+    <path d="M225 262 H340" marker-end="url(#arrow)"/>
+    <path d="M550 230 H600 V135 H650" marker-end="url(#arrow)"/>
+    <path d="M550 255 H600 V230 H650" marker-end="url(#arrow)"/>
+    <path d="M550 280 H600 V325 H650" marker-end="url(#arrow)"/>
+  </g>
+  <g class="lbl" text-anchor="middle" font-size="11">
+    <text x="282" y="234">HTTPS +</text>
+    <text x="282" y="248">virtual key</text>
+  </g>
+
+  <!-- dashed edges: weights + metrics -->
+  <g class="edgeDash">
+    <path d="M920 135 H955 V250 H990" marker-end="url(#arrowdash)"/>
+    <path d="M920 230 H955 V250 H990" marker-end="url(#arrowdash)"/>
+    <path d="M920 325 H955 V250 H990" marker-end="url(#arrowdash)"/>
+    <path d="M445 420 V310" marker-end="url(#arrowdash)"/>
+    <path d="M550 462 H785 V395" marker-end="url(#arrowdash)"/>
+  </g>
+  <g class="lbl" text-anchor="middle" font-size="11">
+    <text x="957" y="188">weights</text>
+    <text x="660" y="450">/metrics scrape</text>
+  </g>
+</svg>

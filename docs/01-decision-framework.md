@@ -21,16 +21,7 @@ The engine choice matters more than the model choice:
 
 ## 2. The three deployment tracks
 
-```mermaid
-flowchart TD
-    A[Need: open-weight LLMs for 20–100 devs] --> B{Data must stay<br/>on your premises?}
-    B -- Yes, hard requirement --> C[Track A · On-prem K8s<br/>vLLM + GPU Operator]
-    B -- No / Azure tenancy OK --> D{Want to operate<br/>a cluster at all?}
-    D -- Yes, need control/custom models --> E[Track B · AKS<br/>KAITO or self-managed vLLM]
-    D -- No, minimize ops --> F{Traffic pattern?}
-    F -- Spiky / low volume --> G[Track C1 · Foundry<br/>serverless pay-per-token]
-    F -- Sustained / high volume --> H[Track C2 · Foundry<br/>managed compute dedicated]
-```
+![Decision tree: data residency → Track A on-prem K8s; otherwise cluster appetite → Track B AKS; otherwise traffic pattern → Foundry serverless (C1) or managed compute (C2)](assets/decision-tree.svg)
 
 ## 3. Pros and cons — full matrix
 
@@ -119,7 +110,9 @@ GPU VMs that Azure operates, billed per compute-hour.
 
 **The hybrid pattern (most common at 50+):** dedicated GPUs (Track A/B) serve the default
 coder model at high utilization; the gateway routes frontier-reasoning requests (a few % of
-traffic) to Foundry serverless DeepSeek-R1/Kimi-K2 pay-per-token. Best of both cost curves.
+traffic) to Foundry serverless DeepSeek-R1/Kimi-K2/K3 pay-per-token. Best of both cost curves.
+(Kimi K3 — 2.8T MoE, 1M context — is hosted-API only until its weights release on 2026-07-27;
+self-hosting it is a multi-node cluster proposition regardless.)
 
 ## 5. What NOT to do
 

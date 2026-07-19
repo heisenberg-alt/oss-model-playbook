@@ -567,9 +567,15 @@ const MODELS = [
   },
   {
     name: "Kimi K2 1T (A32B)", vendor: "MOONSHOT", tier: "frontier", hw: "server",
-    desc: "Trillion-parameter MoE tuned hard for agentic tool use and long-horizon tasks. Only 32B active — but the weights alone need a cluster.",
+    desc: "Trillion-parameter MoE tuned hard for agentic tool use and long-horizon tasks. Only 32B active — but the weights alone need a cluster. Latest revision: K2.7-Code (coding-agentic, native INT4, vision).",
     params: "1T MoE · 32B act", size: "~600 GB", mem: "multi-GPU / hosted", ctx: "256K",
     license: "Modified MIT", tasks: ["agentic", "reasoning"], run: "ollama run kimi-k2:1t"
+  },
+  {
+    name: "Kimi K3 2.8T", vendor: "MOONSHOT", tier: "frontier", hw: "server",
+    desc: "First open-source model in the 3-trillion class. Kimi Delta Attention + Attention Residuals, 16/896 sparse MoE, native vision, 1M context, always-on thinking. Weights release 2026-07-27 — hosted API only until then.",
+    params: "2.8T MoE · 16/896 experts", size: "weights 2026-07-27", mem: "multi-GPU / hosted", ctx: "1M",
+    license: "TBD at release", tasks: ["agentic", "reasoning", "general", "visuals"], run: "api.moonshot.ai · model=kimi-k3"
   },
   {
     name: "GLM-4.6 355B (A32B)", vendor: "ZHIPU", tier: "frontier", hw: "server",

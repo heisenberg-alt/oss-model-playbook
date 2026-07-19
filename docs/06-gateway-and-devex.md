@@ -8,16 +8,7 @@ front of Foundry endpoints — see the `azure-aigateway` patterns).
 
 ## 1. Architecture
 
-```mermaid
-flowchart LR
-    DEV[Dev IDEs & agents] -->|1 URL + virtual key| LB[Ingress / TLS]
-    LB --> GW[LiteLLM proxy ×2]
-    GW --> PG[(Postgres\nkeys · budgets · spend logs)]
-    GW -->|fast| M1[vllm · qwen2.5-coder-7b]
-    GW -->|default| M2[vllm · qwen3-coder-30b]
-    GW -->|reasoning| M3[Foundry serverless · deepseek-r1]
-    GW -->|overflow| M4[spot replicas / Foundry]
-```
+![Gateway architecture: dev IDEs → ingress/TLS → LiteLLM proxy ×2 (backed by Postgres for keys, budgets, spend logs) routing to fast, default, reasoning, and overflow model tiers](assets/gateway-architecture.svg)
 
 ## 2. LiteLLM deployment (K8s, works on Track A and B)
 

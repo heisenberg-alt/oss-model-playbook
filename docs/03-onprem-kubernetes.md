@@ -5,26 +5,7 @@ Full implementation: bare GPUs → production vLLM serving platform. Assumes K8s
 
 ## 1. Architecture
 
-```mermaid
-flowchart LR
-    subgraph devs [Developers]
-      IDE[VS Code / JetBrains / CLI agents]
-    end
-    subgraph cluster [On-prem K8s cluster]
-      GW[LiteLLM Gateway\nDeployment ×2 + Postgres]
-      subgraph gpu [GPU node pool]
-        V1[vLLM · qwen3-coder-30b\n×2 replicas]
-        V2[vLLM · qwen2.5-coder-7b\n×1 replica]
-        V3[vLLM · r1-distill-32b\n×1 replica]
-      end
-      PROM[Prometheus + Grafana]
-      PVC[(NVMe model cache\nhostPath / local PV)]
-    end
-    IDE -->|HTTPS + virtual key| GW
-    GW --> V1 & V2 & V3
-    V1 & V2 & V3 -.-> PVC
-    PROM -.->|/metrics| V1 & V2 & V3 & GW
-```
+![On-prem architecture: developer IDEs → LiteLLM gateway (×2 + Postgres) → three vLLM deployments on the GPU node pool, with an NVMe model cache and Prometheus/Grafana scraping metrics](assets/onprem-architecture.svg)
 
 ## 2. Node preparation
 

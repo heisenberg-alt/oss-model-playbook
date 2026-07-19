@@ -1,0 +1,103 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1160 630" font-family="-apple-system,'Segoe UI',Helvetica,Arial,sans-serif">
+  <style>
+    .canvas{fill:#ffffff;stroke:#e2e8f0}
+    .edge{fill:none;stroke:#64748b;stroke-width:1.6}
+    .arrowhead{fill:#64748b}
+    .lbl{font-size:12px;font-style:italic;fill:#475569;stroke:#ffffff;stroke-width:4px;paint-order:stroke;stroke-linejoin:round}
+    .start{fill:#0f172a}
+    .startTxt{fill:#ffffff}
+    .dec{fill:#fffbeb;stroke:#f59e0b;stroke-width:1.6}
+    .decTxt{fill:#92400e}
+    .a{fill:#ecfdf5;stroke:#10b981;stroke-width:2}
+    .aTxt{fill:#065f46}.aSub{fill:#047857}
+    .b{fill:#eff6ff;stroke:#3b82f6;stroke-width:2}
+    .bTxt{fill:#1e40af}.bSub{fill:#1d4ed8}
+    .c{fill:#f5f3ff;stroke:#8b5cf6;stroke-width:2}
+    .cTxt{fill:#5b21b6}.cSub{fill:#6d28d9}
+    @media (prefers-color-scheme: dark){
+      .canvas{fill:#0d1117;stroke:#30363d}
+      .edge{stroke:#8b949e}
+      .arrowhead{fill:#8b949e}
+      .lbl{fill:#8b949e;stroke:#0d1117}
+      .start{fill:#1c2d4f;stroke:#58a6ff;stroke-width:1.4}
+      .dec{fill:#341a00;stroke:#d29922}
+      .decTxt{fill:#e3b341}
+      .a{fill:#0b2e1f;stroke:#2ea043}
+      .aTxt{fill:#7ee787}.aSub{fill:#56d364}
+      .b{fill:#0c2038;stroke:#388bfd}
+      .bTxt{fill:#79c0ff}.bSub{fill:#58a6ff}
+      .c{fill:#211a35;stroke:#a371f7}
+      .cTxt{fill:#d2a8ff}.cSub{fill:#bc8cff}
+    }
+  </style>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" class="arrowhead"/>
+    </marker>
+    <filter id="ds" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="1.5" stdDeviation="2" flood-color="#0f172a" flood-opacity="0.15"/>
+    </filter>
+  </defs>
+
+  <rect x="0" y="0" width="1160" height="630" rx="14" class="canvas"/>
+
+  <!-- edges -->
+  <g class="edge">
+    <path d="M520 74 V118" marker-end="url(#arrow)"/>
+    <path d="M520 178 V210 H210 V250" marker-end="url(#arrow)"/>
+    <path d="M520 178 V210 H690 V250" marker-end="url(#arrow)"/>
+    <path d="M690 310 V350 H470 V390" marker-end="url(#arrow)"/>
+    <path d="M690 310 V350 H860 V390" marker-end="url(#arrow)"/>
+    <path d="M860 450 V478 H695 V510" marker-end="url(#arrow)"/>
+    <path d="M860 450 V478 H1005 V510" marker-end="url(#arrow)"/>
+  </g>
+
+  <!-- edge labels -->
+  <g class="lbl" text-anchor="middle">
+    <text x="330" y="204">Yes — hard requirement</text>
+    <text x="648" y="204">No / Azure tenancy OK</text>
+    <text x="540" y="344">Yes — need control / custom models</text>
+    <text x="808" y="344">No — minimize ops</text>
+    <text x="722" y="472">Spiky / low volume</text>
+    <text x="975" y="472">Sustained / high volume</text>
+  </g>
+
+  <!-- start -->
+  <g>
+    <rect x="340" y="20" width="360" height="54" rx="27" class="start" filter="url(#ds)"/>
+    <text x="520" y="52" text-anchor="middle" font-size="15" font-weight="600" class="startTxt">Need: open-weight LLMs for 20–100 devs</text>
+  </g>
+
+  <!-- decisions -->
+  <g text-anchor="middle">
+    <rect x="390" y="118" width="260" height="60" rx="12" class="dec" filter="url(#ds)"/>
+    <text x="520" y="143" font-size="13.5" font-weight="600" class="decTxt">Data must stay</text>
+    <text x="520" y="162" font-size="13.5" font-weight="600" class="decTxt">on your premises?</text>
+
+    <rect x="560" y="250" width="260" height="60" rx="12" class="dec" filter="url(#ds)"/>
+    <text x="690" y="275" font-size="13.5" font-weight="600" class="decTxt">Want to operate</text>
+    <text x="690" y="294" font-size="13.5" font-weight="600" class="decTxt">a cluster at all?</text>
+
+    <rect x="760" y="390" width="200" height="60" rx="12" class="dec" filter="url(#ds)"/>
+    <text x="860" y="426" font-size="13.5" font-weight="600" class="decTxt">Traffic pattern?</text>
+  </g>
+
+  <!-- outcomes -->
+  <g text-anchor="middle">
+    <rect x="70" y="250" width="280" height="84" rx="12" class="a" filter="url(#ds)"/>
+    <text x="210" y="284" font-size="15" font-weight="700" class="aTxt">Track A · On-prem K8s</text>
+    <text x="210" y="308" font-size="12.5" class="aSub">vLLM + NVIDIA GPU Operator</text>
+
+    <rect x="330" y="390" width="280" height="84" rx="12" class="b" filter="url(#ds)"/>
+    <text x="470" y="424" font-size="15" font-weight="700" class="bTxt">Track B · AKS</text>
+    <text x="470" y="448" font-size="12.5" class="bSub">KAITO add-on or self-managed vLLM</text>
+
+    <rect x="560" y="510" width="270" height="84" rx="12" class="c" filter="url(#ds)"/>
+    <text x="695" y="544" font-size="15" font-weight="700" class="cTxt">Track C1 · Foundry</text>
+    <text x="695" y="568" font-size="12.5" class="cSub">serverless · pay-per-token</text>
+
+    <rect x="870" y="510" width="270" height="84" rx="12" class="c" filter="url(#ds)"/>
+    <text x="1005" y="544" font-size="15" font-weight="700" class="cTxt">Track C2 · Foundry</text>
+    <text x="1005" y="568" font-size="12.5" class="cSub">managed compute · dedicated</text>
+  </g>
+</svg>
