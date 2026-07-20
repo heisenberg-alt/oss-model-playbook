@@ -5,8 +5,8 @@ relevant for open weights:
 
 | Mode | Billing | Models | Content filtering | Best for |
 |---|---|---|---|---|
-| **Standard / serverless API** | Per token (+ minimal endpoint infra/min for serverless) | Flagship open models sold via Azure: Llama, DeepSeek (R1/V3), Mistral, gpt-oss, Grok, Qwen (availability varies by region) | ✅ Built in | Spiky/low volume; reasoning escalation tier |
-| **Managed compute** | Per compute-minute (dedicated GPU VMs) | Any catalog model incl. Hugging Face collection, NVIDIA NIMs, custom/fine-tuned | ❌ BYO guardrails | Sustained volume without cluster ops; custom models |
+| **Standard / serverless API** | Per token (+ minimal endpoint infra/min for serverless) | Flagship open models sold via Azure: Llama, DeepSeek (R1/V3), Mistral, gpt-oss, Grok, Qwen (availability varies by region) | ✓ Built in | Spiky/low volume; reasoning escalation tier |
+| **Managed compute** | Per compute-minute (dedicated GPU VMs) | Any catalog model incl. Hugging Face collection, NVIDIA NIMs, custom/fine-tuned | ✗ BYO guardrails | Sustained volume without cluster ops; custom models |
 
 > Requires an AI Hub / Foundry project. Managed compute needs **dedicated VM quota**
 > (separate from AKS quota) in your subscription for the chosen GPU SKU.

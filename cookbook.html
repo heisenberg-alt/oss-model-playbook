@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Open-Weight LLM Platform — Team Cookbook</title>
+<style>
+:root {
+  color-scheme: light;
+  --bg: #f7f4ef; --surface: #ffffff; --soft: #f5f5f5;
+  --border: #dedede; --border-strong: #919191;
+  --text: #242424; --muted: #5c5c5c; --faint: #6f6f6f;
+  --accent: #b11f4b; --accent-soft: rgba(177, 31, 75, 0.08);
+  --ok: #16a34a; --warn: #b45309; --link: #0078d4;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --bg: #1c1c1c; --surface: #292929; --soft: #2e2e2e;
+    --border: #474747; --border-strong: #5f5f5f;
+    --text: #dedede; --muted: #b0b0b0; --faint: #919191;
+    --accent: #fd8ea1; --accent-soft: rgba(253, 142, 161, 0.14);
+    --ok: #4ade80; --warn: #fbbf24; --link: #4da6ff;
+  }
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg); color: var(--text);
+  font-family: "Segoe UI", Aptos, Calibri, -apple-system, BlinkMacSystemFont, sans-serif;
+  line-height: 1.55; -webkit-font-smoothing: antialiased;
+}
+code, pre { font-family: Consolas, "Courier New", Courier, monospace; }
+a { color: var(--link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.wrap { max-width: 900px; margin: 0 auto; padding: 0 28px; }
+
+header { border-bottom: 1px solid var(--border); padding: 44px 0 32px; }
+.eyebrow {
+  font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--accent); font-weight: 700; margin-bottom: 10px;
+}
+h1 { font-size: 1.9rem; font-weight: 650; letter-spacing: -0.02em; }
+.subtitle { color: var(--muted); margin-top: 8px; font-size: 1.02rem; max-width: 720px; }
+.meta { margin-top: 14px; font-size: 0.8rem; color: var(--faint); }
+
+nav.toc {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+  padding: 18px 22px; margin: 28px 0 8px; font-size: 0.9rem;
+}
+nav.toc strong { display: block; font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--faint); margin-bottom: 8px; }
+nav.toc ol { margin-left: 20px; columns: 2; column-gap: 40px; }
+nav.toc li { margin-bottom: 3px; }
+
+section.recipe { padding: 30px 0 4px; }
+.recipe-kicker { font-size: 0.7rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); font-weight: 700; }
+h2 { font-size: 1.3rem; font-weight: 650; margin: 4px 0 10px; }
+p { margin-bottom: 10px; color: var(--muted); font-size: 0.93rem; max-width: 800px; }
+p strong, li strong { color: var(--text); }
+ul, ol { margin: 0 0 12px 22px; color: var(--muted); font-size: 0.93rem; }
+li { margin-bottom: 4px; }
+
+table {
+  width: 100%; border-collapse: collapse; margin: 12px 0 16px;
+  font-size: 0.85rem; background: var(--surface);
+  border: 1px solid var(--border); border-radius: 8px; overflow: hidden;
+}
+th, td { padding: 8px 12px; text-align: left; border-bottom: 1px solid var(--border); vertical-align: top; }
+th { background: var(--soft); font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--faint); }
+tr:last-child td { border-bottom: none; }
+td code { background: var(--soft); border: 1px solid var(--border); border-radius: 4px; padding: 0 4px; font-size: 0.8rem; }
+
+pre {
+  background: var(--soft); border: 1px solid var(--border); border-radius: 8px;
+  padding: 14px 16px; font-size: 0.8rem; line-height: 1.5;
+  overflow-x: auto; margin: 10px 0 16px; color: var(--text);
+}
+.callout {
+  border-left: 4px solid var(--accent); background: var(--accent-soft);
+  border-radius: 0 8px 8px 0; padding: 12px 16px; margin: 12px 0 16px;
+  font-size: 0.9rem; color: var(--text);
+}
+.check li::marker { content: "□  "; }
+.ok { color: var(--ok); font-weight: 700; }
+.no { color: var(--accent); font-weight: 700; }
+.warn { color: var(--warn); font-weight: 700; }
+
+footer {
+  margin-top: 44px; padding: 26px 0 44px; border-top: 1px solid var(--border);
+  color: var(--faint); font-size: 0.8rem;
+}
+footer p { font-size: 0.8rem; color: var(--faint); }
+
+@media print {
+  :root { --bg: #ffffff; --surface: #ffffff; --soft: #f4f4f4; }
+  body { font-size: 11px; }
+  nav.toc ol { columns: 2; }
+  section.recipe, table, pre, .callout { break-inside: avoid; }
+  a { color: inherit; }
+  header { padding-top: 10px; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="eyebrow">Cookbook · Edition 1 · July 2026</div>
+    <h1>Open-Weight LLM Platform — Team Cookbook</h1>
+    <p class="subtitle">
+      Eleven field-tested recipes for standing up an enterprise-grade open-weight LLM inference
+      platform for developer teams — on-premises, on Azure Kubernetes Service, or on Azure AI
+      Foundry. Condensed from the full playbook; each recipe links back to its deep-dive chapter.
+    </p>
+    <div class="meta">
+      Source and updates: <a href="https://github.com/heisenberg-alt/oss-model-playbook">github.com/heisenberg-alt/oss-model-playbook</a>
+      · If this cookbook saves your team time, star the repository — it helps other teams find it.
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <nav class="toc">
+    <strong>Recipes</strong>
+    <ol>
+      <li><a href="#r1">Choose your deployment track</a></li>
+      <li><a href="#r2">Size the cluster</a></li>
+      <li><a href="#r3">Build the 3-tier model catalog</a></li>
+      <li><a href="#r4">Serve with vLLM on Kubernetes</a></li>
+      <li><a href="#r5">AKS quickstart</a></li>
+      <li><a href="#r6">Foundry serverless quickstart</a></li>
+      <li><a href="#r7">Stand up the gateway</a></li>
+      <li><a href="#r8">Connect the IDEs</a></li>
+      <li><a href="#r9">Benchmark and set SLOs</a></li>
+      <li><a href="#r10">Know your cost break-evens</a></li>
+      <li><a href="#r11">Security and governance baseline</a></li>
+    </ol>
+  </nav>
+</div>
+
+<section class="recipe" id="r1"><div class="wrap">
+  <div class="recipe-kicker">Recipe 1</div>
+  <h2>Choose your deployment track</h2>
+  <p><strong>When to use:</strong> day zero. Everything downstream depends on this call.</p>
+  <table>
+    <tr><th>Question</th><th>If yes</th></tr>
+    <tr><td>Must data stay on your premises (hard regulatory requirement)?</td><td><strong>Track A</strong> — on-prem Kubernetes, vLLM + NVIDIA GPU Operator</td></tr>
+    <tr><td>Cloud acceptable and you want cluster-level control or custom models?</td><td><strong>Track B</strong> — AKS with KAITO add-on or self-managed vLLM</td></tr>
+    <tr><td>Want zero cluster operations, spiky or low volume?</td><td><strong>Track C1</strong> — Azure AI Foundry serverless, pay-per-token</td></tr>
+    <tr><td>Want zero cluster operations, sustained high volume?</td><td><strong>Track C2</strong> — Foundry managed compute, dedicated GPU VMs</td></tr>
+  </table>
+  <div class="callout"><strong>The hybrid pattern (most common at 50+ devs):</strong> dedicated GPUs
+  (A/B) serve the default coder model at high utilization; the gateway routes the few percent of
+  frontier-reasoning traffic to Foundry serverless pay-per-token. Best of both cost curves.</div>
+  <p>Full matrix and rationale: playbook chapter 01 · Decision Framework.</p>
+</div></section>
+
+<section class="recipe" id="r2"><div class="wrap">
+  <div class="recipe-kicker">Recipe 2</div>
+  <h2>Size the cluster</h2>
+  <p><strong>When to use:</strong> before buying or reserving any GPU.</p>
+  <table>
+    <tr><th>Team size</th><th>Peak concurrent requests</th><th>Sustained throughput</th><th>Reference hardware</th></tr>
+    <tr><td>20 devs</td><td>4–8 in flight</td><td>1,000–3,000 out-tok/s</td><td>2× L40S or 1× A100/H100 80 GB</td></tr>
+    <tr><td>50 devs</td><td>10–20 in flight</td><td>3,000–8,000 out-tok/s</td><td>2× A100/H100 + spot burst</td></tr>
+    <tr><td>100 devs</td><td>20–45 in flight</td><td>6,000–15,000 out-tok/s</td><td>4–8× A100/H100 across 2+ nodes</td></tr>
+  </table>
+  <ul>
+    <li><strong>Heuristic:</strong> one 80 GB-class GPU per 20–25 developers (mixed workloads, MoE default model); halve density for agent-heavy teams.</li>
+    <li><strong>KV cache is the concurrency budget:</strong> serving 64K context instead of 256K gives roughly 4× more concurrent sequences on the same GPU.</li>
+    <li><strong>Pilot before purchase (mandatory for on-prem):</strong> two weeks on cloud GPUs with 5–10 representative devs; capture tokens per request and peak concurrency from gateway logs; scale linearly and add 40% headroom.</li>
+  </ul>
+  <p>Worked examples and KV-cache math: chapter 02 · Capacity Planning.</p>
+</div></section>
+
+<section class="recipe" id="r3"><div class="wrap">
+  <div class="recipe-kicker">Recipe 3</div>
+  <h2>Build the 3-tier model catalog</h2>
+  <p><strong>When to use:</strong> always. One giant model for everything costs 3–5× more than routed tiers.</p>
+  <table>
+    <tr><th>Tier</th><th>Role</th><th>Recommended model</th><th>Traffic share</th></tr>
+    <tr><td><strong>Fast</strong></td><td>Completions, commit messages, quick Q&amp;A</td><td>Qwen2.5-Coder-7B (AWQ/FP8)</td><td>30–50% of requests, ~10% of tokens</td></tr>
+    <tr><td><strong>Default</strong></td><td>Chat, code generation, agentic development</td><td>Qwen3-Coder-30B-A3B MoE (FP8)</td><td>40–60% of requests, ~60% of tokens</td></tr>
+    <tr><td><strong>Reasoning</strong></td><td>Hard debugging, architecture analysis</td><td>gpt-oss-120B / DeepSeek-R1-Distill-32B / Foundry serverless R1</td><td>5–10% of requests, ~30% of tokens</td></tr>
+  </table>
+  <div class="callout"><strong>Frontier watch (July 2026):</strong> DeepSeek-V4 (Pro 1.6T / Flash
+  284B, 1M context, MIT), GLM-5.2 (753B, 1M context, MIT) and Kimi K2.7-Code (1T, Modified MIT)
+  lead the open frontier; Kimi K3 (2.8T, 1M context) releases open weights 2026-07-27 — until
+  then it is hosted-API only. Trial frontier models via serverless APIs before committing
+  cluster capacity.</div>
+  <p>Full catalog with hardware footprints: the interactive model picker in the repository.</p>
+</div></section>
+
+<section class="recipe" id="r4"><div class="wrap">
+  <div class="recipe-kicker">Recipe 4</div>
+  <h2>Serve with vLLM on Kubernetes</h2>
+  <p><strong>When to use:</strong> Tracks A and B2. Ollama is a workstation tool; 20+ concurrent developers need vLLM-class continuous batching.</p>
+  <pre>args:
+  - --model=/models/qwen3-coder-30b-fp8
+  - --served-model-name=qwen3-coder-30b
+  - --max-model-len=65536          # context cap = concurrency budget
+  - --max-num-seqs=32
+  - --gpu-memory-utilization=0.92
+  - --enable-prefix-caching        # agents re-send context; big TTFT win
+  - --enable-chunked-prefill       # protects TPOT from long-prompt stalls
+  - --enable-auto-tool-choice
+  - --tool-call-parser=qwen3_coder</pre>
+  <ul>
+    <li>Weights on local NVMe (<code>/var/lib/models</code>); startup probe with a generous failure threshold — model load takes minutes.</li>
+    <li>MIG-slice large GPUs for the fast tier; tensor parallelism only across NVLink-connected GPUs.</li>
+    <li>Autoscale on <code>vllm:num_requests_waiting</code> (queue depth), never on CPU; scale down slowly (600 s window).</li>
+  </ul>
+  <p>Complete manifests, GPU Operator setup, and air-gap notes: chapter 03 · On-Prem Kubernetes.</p>
+</div></section>
+
+<section class="recipe" id="r5"><div class="wrap">
+  <div class="recipe-kicker">Recipe 5</div>
+  <h2>AKS quickstart</h2>
+  <p><strong>When to use:</strong> Track B. Start with the KAITO add-on for speed; move hot paths to self-managed vLLM when you need tuning surface.</p>
+  <pre>az aks create -g $RG -n $CLUSTER -l $LOC \
+  --tier standard --node-count 2 --node-vm-size Standard_D8ds_v5 \
+  --enable-managed-identity --enable-oidc-issuer --enable-workload-identity \
+  --enable-azure-monitor-metrics \
+  --enable-ai-toolchain-operator \
+  --generate-ssh-keys</pre>
+  <ul>
+    <li>Request GPU quota (NCads A100 v4 / NCads H100 v5) before anything else — approval can take days.</li>
+    <li>Base pool reserved (1–3 yr, 30–60% off PAYG); burst pool on spot with eviction-tolerant replicas only.</li>
+    <li>Deleting a KAITO workspace does not delete its GPU node pool — delete it explicitly to stop billing.</li>
+  </ul>
+  <p>KAITO workspaces, node pools, KEDA autoscaling, Azure-native security: chapter 04 · AKS.</p>
+</div></section>
+
+<section class="recipe" id="r6"><div class="wrap">
+  <div class="recipe-kicker">Recipe 6</div>
+  <h2>Foundry serverless quickstart</h2>
+  <p><strong>When to use:</strong> Track C1, the reasoning tier for any track, and trialing new models before pulling weights into the cluster.</p>
+  <pre>az cognitiveservices account create -n llm-foundry -g $RG -l $LOC \
+  --kind AIServices --sku S0
+
+az cognitiveservices account deployment create -n llm-foundry -g $RG \
+  --deployment-name deepseek-r1 \
+  --model-name DeepSeek-R1 --model-format DeepSeek --model-version "1" \
+  --sku-name GlobalStandard --sku-capacity 1</pre>
+  <ul>
+    <li>Prefer Entra ID (keyless) auth; pick regional processing if you have residency constraints.</li>
+    <li>Serverless usually wins below ~30–60M tokens/day team-wide; above that, dedicated compute wins.</li>
+    <li>Managed compute (C2) has no built-in content filtering — put guardrails in the gateway.</li>
+  </ul>
+  <p>Managed compute deployment and blue/green rollouts: chapter 05 · Foundry.</p>
+</div></section>
+
+<section class="recipe" id="r7"><div class="wrap">
+  <div class="recipe-kicker">Recipe 7</div>
+  <h2>Stand up the gateway</h2>
+  <p><strong>When to use:</strong> all tracks, day one. Never expose raw model endpoints to developers.</p>
+  <pre>curl -s http://litellm.llm.svc:4000/key/generate \
+  -H "Authorization: Bearer $MASTER_KEY" -H "Content-Type: application/json" \
+  -d '{
+    "team_id": "payments-squad",
+    "models": ["fast", "default"],
+    "max_budget": 50, "budget_duration": "1d",
+    "rpm_limit": 300, "tpm_limit": 500000
+  }'</pre>
+  <ul>
+    <li><strong>Model aliasing is the superpower:</strong> devs call <code>fast</code> / <code>default</code> / <code>reasoning</code>; upgrading the underlying model is a gateway config change, not a 100-dev migration.</li>
+    <li>Every team gets fast + default; reasoning is allow-listed (it is the expensive tier).</li>
+    <li>Fallback chains: default → reasoning on saturation, fast → default on failure; spot evictions become invisible.</li>
+    <li>Request/response content logging OFF; metadata (tokens, latency, model, team) only.</li>
+  </ul>
+  <p>Full LiteLLM deployment and routing config: chapter 06 · Gateway &amp; DevEx.</p>
+</div></section>
+
+<section class="recipe" id="r8"><div class="wrap">
+  <div class="recipe-kicker">Recipe 8</div>
+  <h2>Connect the IDEs</h2>
+  <p><strong>When to use:</strong> onboarding. One base URL for everything: <code>https://llm.internal.example.com/v1</code>.</p>
+  <table>
+    <tr><th>Client</th><th>Integration</th></tr>
+    <tr><td>VS Code — Copilot BYO model</td><td>Manage Models → custom OpenAI-compatible provider → gateway URL + team key; expose <code>default</code> and <code>reasoning</code></td></tr>
+    <tr><td>Continue / Cline / Roo</td><td><code>provider: openai</code>, <code>apiBase</code> = gateway URL, <code>model</code> = <code>default</code></td></tr>
+    <tr><td>Aider</td><td><code>OPENAI_API_BASE</code> + <code>OPENAI_API_KEY</code> env vars, <code>--model openai/default</code></td></tr>
+    <tr><td>Tab completion (FIM)</td><td>Point at the <code>fast</code> tier only — latency-critical, high QPS</td></tr>
+    <tr><td>Offline laptop</td><td><code>ollama run qwen3-coder:30b</code> locally; the gateway remains the shared source of truth</td></tr>
+  </table>
+</div></section>
+
+<section class="recipe" id="r9"><div class="wrap">
+  <div class="recipe-kicker">Recipe 9</div>
+  <h2>Benchmark and set SLOs</h2>
+  <p><strong>When to use:</strong> before launch, after every engine upgrade, model swap, or flag change.</p>
+  <table>
+    <tr><th>SLO</th><th>Target</th></tr>
+    <tr><td>Chat TTFT p95</td><td>&lt; 1.5 s (page at &gt; 3 s for 10 min)</td></tr>
+    <tr><td>Completions TTFT p95</td><td>&lt; 400 ms</td></tr>
+    <tr><td>TPOT p95</td><td>&lt; 60 ms (≥ ~17 tok/s per stream)</td></tr>
+    <tr><td>Queue time p95</td><td>&lt; 500 ms (capacity review at &gt; 2 s daily peaks)</td></tr>
+    <tr><td>Preemption rate</td><td>~0 (&gt; 1% = KV over-commit)</td></tr>
+  </table>
+  <pre>vllm bench serve --backend openai-chat \
+  --base-url https://llm.internal.example.com/v1 --model default \
+  --dataset-name random --random-input-len 8192 --random-output-len 512 \
+  --num-prompts 300 --request-rate 4    # sweep 1..16, find the SLO knee</pre>
+  <p><strong>Goodput</strong> — the highest request rate where p95 TTFT and TPOT still meet SLO — is
+  the only capacity number that matters. Tuning levers in ROI order: quantization (FP8/AWQ),
+  prefix caching, chunked prefill, context caps, <code>max-num-seqs</code>. Chapter 07 · Performance.</p>
+</div></section>
+
+<section class="recipe" id="r10"><div class="wrap">
+  <div class="recipe-kicker">Recipe 10</div>
+  <h2>Know your cost break-evens</h2>
+  <table>
+    <tr><th>Rule of thumb</th><th>Number (mid-2026, re-verify)</th></tr>
+    <tr><td>Serverless vs one dedicated A100 (3-yr reserved)</td><td>Dedicated wins above ~20–50M output tokens/month on that GPU</td></tr>
+    <tr><td>On-prem vs AKS reserved</td><td>On-prem needs &gt; ~50–60% sustained utilization plus existing DC and platform staffing</td></tr>
+    <tr><td>Reasoning tier at ≤ 10% traffic share</td><td>Serverless almost always beats owning 2× H100 for it</td></tr>
+    <tr><td>Effective H100 cost, on-prem 24×7</td><td>~$1.3–1.9K/month vs ~$5–8K/month cloud PAYG-equivalent</td></tr>
+  </table>
+  <p><strong>Own the base load, rent the peaks and the frontier.</strong> Re-quote serverless
+  prices quarterly — per-token prices keep falling, so the break-even moves. Chapter 10 · Cost &amp; TCO.</p>
+</div></section>
+
+<section class="recipe" id="r11"><div class="wrap">
+  <div class="recipe-kicker">Recipe 11</div>
+  <h2>Security and governance baseline</h2>
+  <ul class="check">
+    <li>Gateway-only exposure; TLS everywhere; NetworkPolicy default-deny in the LLM namespace</li>
+    <li>Virtual keys per team, auto-expiring, rotated quarterly; OIDC/Entra SSO where possible</li>
+    <li>Prompts and completions processed in memory, never persisted; metadata-only logging</li>
+    <li>Weights pulled from official Hugging Face orgs only; revisions pinned, checksums verified</li>
+    <li>Engine pods have no internet egress after weights are cached (<code>HF_HUB_OFFLINE=1</code>)</li>
+    <li>License review before catalog entry: Apache-2.0/MIT safe defaults; Llama/Gemma need legal sign-off; Kimi Modified MIT needs clause review</li>
+    <li>Per-key RPM/TPM limits and budgets — a runaway agent loop is a governance event, not an outage</li>
+    <li>Audit metadata (who, which model, when, token counts) retained ≥ 1 year</li>
+  </ul>
+  <p>Threat model, data-handling policy, compliance map: chapter 09 · Security &amp; Governance.</p>
+</div></section>
+
+<footer>
+  <div class="wrap">
+    <p><strong>Verification note</strong> — model names, VM SKUs, prices, and operator versions were
+    checked against public documentation as of July 2026. GPU pricing and model availability drift
+    monthly; re-verify against primary sources before committing budget.</p>
+    <p style="margin-top:8px">
+      Full playbook, interactive model picker, and updates:
+      <a href="https://github.com/heisenberg-alt/oss-model-playbook">github.com/heisenberg-alt/oss-model-playbook</a>.
+      If your team uses this cookbook, please star the repository — stars are how other teams discover it.
+    </p>
+  </div>
+</footer>
+
+</body>
+</html>

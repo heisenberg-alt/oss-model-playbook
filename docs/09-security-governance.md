@@ -47,12 +47,12 @@
 
 | License | Models | Enterprise posture |
 |---|---|---|
-| Apache-2.0 | Qwen (most), Mistral/Devstral, gpt-oss | ✅ Use freely, attribute |
-| MIT | DeepSeek (R1/V3), Phi, GLM-4.6 | ✅ Use freely |
-| Modified MIT | Kimi K2 / K2.7-Code (attribution clause at very large scale) | ✅ with legal review of the clause |
-| TBD (weights due 2026-07-27) | Kimi K3 | ⏳ hosted-API only for now; review license at weights release before catalog entry |
-| Llama Community | Llama 3.x | ⚠️ AUP + 700M-MAU clause; legal sign-off; redistribution rules |
-| Gemma Terms | Gemma 3 | ⚠️ Use-restriction policy; legal sign-off |
+| Apache-2.0 | Qwen (most, incl. Qwen3.6), Mistral/Devstral, gpt-oss | ✓ Use freely, attribute |
+| MIT | DeepSeek (R1/V3/V4), Phi, GLM-4.6/5.1/5.2 | ✓ Use freely |
+| Modified MIT | Kimi K2 / K2.7-Code (attribution clause at very large scale) | ✓ with legal review of the clause |
+| TBD (weights due 2026-07-27) | Kimi K3 | Pending — hosted-API only for now; review license at weights release before catalog entry |
+| Llama Community | Llama 3.x | ⚠ AUP + 700M-MAU clause; legal sign-off; redistribution rules |
+| Gemma Terms | Gemma 3 | ⚠ Use-restriction policy; legal sign-off |
 
 Process: models enter the catalog via a lightweight review (license, provenance, eval results);
 the gateway's `model_list` **is** the allow-list — anything not in it is unreachable.
@@ -74,7 +74,7 @@ the gateway's `model_list` **is** the allow-list — anything not in it is unrea
 
 | Requirement | Track A | Track B | Track C |
 |---|---|---|---|
-| Data never leaves premises | ✅ | ❌ (leaves premises, stays in your tenant) | ❌ (same) |
-| Data stays in-tenant / region | ✅ | ✅ (region-pinned) | ✅ regional deployments (verify per model) |
+| Data never leaves premises | ✓ | ✗ (leaves premises, stays in your tenant) | ✗ (same) |
+| Data stays in-tenant / region | ✓ | ✓ (region-pinned) | ✓ regional deployments (verify per model) |
 | CMK encryption at rest | Your storage layer | Azure disk/storage CMK | Supported on Foundry resources |
 | SOC2/ISO evidence for infra | You produce it | Inherit Azure attestations + your workload | Mostly inherited |

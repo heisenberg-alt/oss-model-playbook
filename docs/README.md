@@ -30,9 +30,10 @@ completions and **a reasoning model** (DeepSeek-R1-Distill / gpt-oss) for escala
 roughly **one 80 GB-class GPU per 20–25 active developers** for mixed chat+agent workloads,
 autoscale on queue depth, and measure everything in **TTFT / TPOT / goodput**, not vibes.
 
-## Companion artifact
+## Companion artifacts
 
-[oss-model-picker.html](../oss-model-picker.html) — interactive model picker (task × hardware tier) for the model catalog referenced throughout these docs.
+- [oss-model-picker.html](../oss-model-picker.html) — interactive model picker (task × hardware tier) for the model catalog referenced throughout these docs.
+- [cookbook.pdf](../cookbook.pdf) — downloadable team cookbook: eleven condensed recipes distilled from these chapters (HTML source: [cookbook.html](../cookbook.html)).
 
 ## Verification disclaimer
 

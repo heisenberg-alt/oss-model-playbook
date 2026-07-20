@@ -3,271 +3,389 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Open-Weight Models on Ollama · Model Selection Playbook</title>
-<script>
-  (() => {
-    const param = new URLSearchParams(window.location.search).get("clawpilotTheme");
-    const theme =
-      param || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
-    document.documentElement.dataset.theme = theme;
-  })();
-</script>
+<meta name="description" content="Interactive open-weight model picker for enterprise developer teams — filter by task and hardware, compare footprints and licenses." />
+<title>Open-Weight Model Picker · Enterprise LLM Playbook</title>
 <style>
 :root {
-  color-scheme: light;
-  --cp-bg: #f7f4ef;
-  --cp-bg-elevated: #fcfbf8;
-  --cp-surface: #ffffff;
-  --cp-surface-soft: #f5f5f5;
-  --cp-border: #dedede;
-  --cp-border-strong: #919191;
-  --cp-text: #242424;
-  --cp-text-muted: #5c5c5c;
-  --cp-text-soft: #6f6f6f;
-  --cp-accent: #b11f4b;
-  --cp-accent-hover: #9a1a41;
-  --cp-accent-soft: rgba(177, 31, 75, 0.08);
-  --cp-accent-fg: #ffffff;
-  --cp-success: #16a34a;
-  --cp-danger: #dc2626;
-  --cp-warning: #f59e0b;
-  --cp-link: #0078d4;
-  --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.12);
-  --cp-overlay: rgba(255, 255, 255, 0.8);
-  --cp-panel: rgba(255, 255, 255, 0.86);
-  --cp-panel-strong: rgba(255, 255, 255, 0.96);
-  --cp-sheen: rgba(255, 255, 255, 0.55);
-  --cp-highlight: rgba(177, 31, 75, 0.12);
-}
-html[data-theme="dark"] {
   color-scheme: dark;
-  --cp-bg: #3d3b3a;
-  --cp-bg-elevated: #343231;
-  --cp-surface: #292929;
-  --cp-surface-soft: #2e2e2e;
-  --cp-border: #474747;
-  --cp-border-strong: #5f5f5f;
-  --cp-text: #dedede;
-  --cp-text-muted: #919191;
-  --cp-text-soft: #b0b0b0;
-  --cp-accent: #fd8ea1;
-  --cp-accent-hover: #fb7b91;
-  --cp-accent-soft: rgba(253, 142, 161, 0.14);
-  --cp-accent-fg: #1a1a1a;
-  --cp-success: #4ade80;
-  --cp-danger: #f87171;
-  --cp-warning: #fbbf24;
-  --cp-link: #4da6ff;
-  --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.32);
-  --cp-overlay: rgba(41, 41, 41, 0.88);
-  --cp-panel: rgba(41, 41, 41, 0.72);
-  --cp-panel-strong: rgba(41, 41, 41, 0.96);
-  --cp-sheen: rgba(255, 255, 255, 0.04);
-  --cp-highlight: rgba(253, 142, 161, 0.12);
+  --bg-0: #0a0e1a;
+  --bg-1: #0f1526;
+  --surface: rgba(255, 255, 255, 0.045);
+  --surface-hover: rgba(255, 255, 255, 0.08);
+  --border: rgba(255, 255, 255, 0.09);
+  --border-hover: rgba(255, 255, 255, 0.22);
+  --text: #e8ecf4;
+  --muted: #9aa5bd;
+  --faint: #6b7691;
+  --accent: #7c8cff;
+  --accent-2: #4ecbd4;
+  --accent-3: #c084fc;
+  --glow-1: rgba(124, 140, 255, 0.14);
+  --glow-2: rgba(78, 203, 212, 0.10);
+  --ok: #4ade80;
+  --warn: #fbbf24;
+  --radius: 18px;
+  --font: "Segoe UI", Aptos, -apple-system, BlinkMacSystemFont, "Inter", sans-serif;
+  --mono: "SF Mono", Consolas, "Cascadia Code", monospace;
+}
+html[data-theme="light"] {
+  color-scheme: light;
+  --bg-0: #f4f6fb;
+  --bg-1: #eef1f8;
+  --surface: rgba(255, 255, 255, 0.75);
+  --surface-hover: rgba(255, 255, 255, 0.95);
+  --border: rgba(15, 23, 42, 0.10);
+  --border-hover: rgba(15, 23, 42, 0.25);
+  --text: #16203a;
+  --muted: #4a5674;
+  --faint: #7d88a3;
+  --accent: #4d5fd6;
+  --accent-2: #0d9aa6;
+  --accent-3: #8b5cf6;
+  --glow-1: rgba(77, 95, 214, 0.10);
+  --glow-2: rgba(13, 154, 166, 0.08);
+  --ok: #16a34a;
+  --warn: #b45309;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
 
 body {
-  background: var(--cp-bg);
-  color: var(--cp-text);
-  font-family: "Segoe UI", Aptos, Calibri, -apple-system, BlinkMacSystemFont, sans-serif;
-  line-height: 1.55;
+  background: var(--bg-0);
+  color: var(--text);
+  font-family: var(--font);
+  line-height: 1.6;
   -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
 }
-code, .mono { font-family: Consolas, "Courier New", Courier, monospace; }
-a { color: var(--cp-link); text-decoration: none; }
+body::before {
+  content: "";
+  position: fixed; inset: 0; z-index: -1;
+  background:
+    radial-gradient(900px 500px at 15% -5%, var(--glow-1), transparent 60%),
+    radial-gradient(800px 500px at 90% 10%, var(--glow-2), transparent 55%),
+    radial-gradient(700px 600px at 50% 110%, var(--glow-1), transparent 60%),
+    var(--bg-0);
+}
+code, .mono { font-family: var(--mono); }
+a { color: var(--accent); text-decoration: none; }
 a:hover { text-decoration: underline; }
+.wrap { max-width: 1240px; margin: 0 auto; padding: 0 28px; }
 
-.wrap { max-width: 1180px; margin: 0 auto; padding: 0 24px; }
+/* ---------- Reveal-on-scroll ---------- */
+.reveal { opacity: 0; transform: translateY(22px); transition: opacity 0.6s ease, transform 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
+.reveal.in { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) {
+  .reveal { opacity: 1; transform: none; transition: none; }
+  * { animation: none !important; transition: none !important; }
+}
 
 /* ---------- Header ---------- */
-header {
-  background: var(--cp-bg-elevated);
-  border-bottom: 1px solid var(--cp-border);
-  padding: 40px 0 36px;
+header { padding: 72px 0 40px; position: relative; }
+.topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 16px; margin-bottom: 44px; flex-wrap: wrap;
 }
-.eyebrow {
-  display: flex; align-items: center; gap: 12px;
-  font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase;
-  color: var(--cp-text-soft); margin-bottom: 14px;
+.brand {
+  font-size: 0.78rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--muted); display: flex; align-items: center; gap: 10px;
 }
-.eyebrow .tag {
-  background: var(--cp-accent-soft); color: var(--cp-accent);
-  padding: 2px 10px; border-radius: 0.625rem; font-weight: 600;
+.brand::before {
+  content: ""; width: 10px; height: 10px; border-radius: 3px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  box-shadow: 0 0 14px var(--glow-1);
 }
-h1 { font-size: 2.1rem; font-weight: 650; letter-spacing: -0.02em; }
-.subtitle { font-size: 1.15rem; color: var(--cp-text-muted); margin-top: 8px; font-weight: 500; }
-.lede { max-width: 820px; margin-top: 16px; color: var(--cp-text-muted); font-size: 0.98rem; }
+.top-actions { display: flex; align-items: center; gap: 10px; }
+.icon-btn {
+  border: 1px solid var(--border); background: var(--surface); color: var(--text);
+  font-family: inherit; font-size: 0.78rem; font-weight: 600;
+  padding: 7px 15px; border-radius: 999px; cursor: pointer;
+  transition: border-color 0.2s, background 0.2s, transform 0.15s;
+  backdrop-filter: blur(10px);
+}
+.icon-btn:hover { border-color: var(--border-hover); transform: translateY(-1px); }
 
-.default-card {
-  margin-top: 24px; display: inline-flex; align-items: center; gap: 16px;
-  background: var(--cp-surface); border: 1px solid var(--cp-border);
-  border-left: 4px solid var(--cp-accent);
-  border-radius: 16px; padding: 14px 22px;
-  box-shadow: 0 0 2px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.14);
+h1 {
+  font-size: clamp(2.1rem, 5vw, 3.3rem); font-weight: 750; letter-spacing: -0.03em;
+  line-height: 1.12; max-width: 900px;
 }
-.default-card .badge-default {
-  background: var(--cp-accent); color: var(--cp-accent-fg);
-  font-size: 0.68rem; font-weight: 700; letter-spacing: 0.12em;
-  padding: 4px 10px; border-radius: 0.625rem; text-transform: uppercase;
+h1 .grad {
+  background: linear-gradient(90deg, var(--accent), var(--accent-2) 55%, var(--accent-3));
+  -webkit-background-clip: text; background-clip: text; color: transparent;
 }
-.default-card strong { font-size: 1.05rem; }
-.default-card span.desc { color: var(--cp-text-muted); font-size: 0.85rem; }
+.lede {
+  max-width: 760px; margin-top: 20px; color: var(--muted); font-size: 1.04rem;
+}
+.lede strong { color: var(--text); }
+
+.hero-stats { display: flex; gap: 14px; margin-top: 32px; flex-wrap: wrap; }
+.stat {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+  padding: 12px 20px; backdrop-filter: blur(10px);
+  transition: transform 0.2s, border-color 0.2s;
+}
+.stat:hover { transform: translateY(-2px); border-color: var(--border-hover); }
+.stat .n { font-size: 1.35rem; font-weight: 750; letter-spacing: -0.02em; }
+.stat .l { font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--faint); font-weight: 700; }
+
+.default-banner {
+  margin-top: 32px; display: inline-flex; align-items: center; gap: 16px; flex-wrap: wrap;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 16px 24px; backdrop-filter: blur(12px);
+  position: relative; overflow: hidden;
+}
+.default-banner::before {
+  content: ""; position: absolute; inset: 0 auto 0 0; width: 4px;
+  background: linear-gradient(180deg, var(--accent), var(--accent-2));
+}
+.default-banner .tag {
+  background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #fff;
+  font-size: 0.65rem; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase;
+  padding: 5px 12px; border-radius: 999px;
+}
+.default-banner .desc { color: var(--muted); font-size: 0.88rem; max-width: 560px; }
 
 /* ---------- Sections ---------- */
-section { padding: 44px 0 8px; }
-.section-kicker {
-  font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase;
-  color: var(--cp-accent); font-weight: 700; margin-bottom: 6px;
+section { padding: 56px 0 8px; }
+.kicker {
+  font-size: 0.72rem; letter-spacing: 0.16em; text-transform: uppercase;
+  font-weight: 800; margin-bottom: 8px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  display: inline-block;
 }
-h2 { font-size: 1.45rem; font-weight: 650; letter-spacing: -0.01em; margin-bottom: 6px; }
-.section-sub { color: var(--cp-text-muted); font-size: 0.95rem; max-width: 760px; margin-bottom: 22px; }
+h2 { font-size: 1.6rem; font-weight: 720; letter-spacing: -0.02em; margin-bottom: 8px; }
+.section-sub { color: var(--muted); font-size: 0.96rem; max-width: 780px; margin-bottom: 26px; }
 
-/* ---------- Filters ---------- */
-.filters { display: flex; flex-wrap: wrap; gap: 28px; margin-bottom: 24px; }
-.filter-group .filter-label {
-  font-size: 0.68rem; letter-spacing: 0.12em; text-transform: uppercase;
-  color: var(--cp-text-soft); font-weight: 700; margin-bottom: 8px;
+/* ---------- Controls ---------- */
+.controls {
+  position: sticky; top: 12px; z-index: 40;
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 18px 22px; backdrop-filter: blur(18px) saturate(1.3);
+  display: flex; flex-wrap: wrap; gap: 20px 34px; margin-bottom: 30px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18);
+}
+.control-group .label {
+  font-size: 0.66rem; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--faint); font-weight: 800; margin-bottom: 9px;
 }
 .chiprow { display: flex; flex-wrap: wrap; gap: 8px; }
 .chip {
-  border: 1px solid var(--cp-border); background: var(--cp-surface);
-  color: var(--cp-text-muted); font-size: 0.82rem; font-weight: 600;
-  padding: 6px 14px; border-radius: 999px; cursor: pointer;
-  font-family: inherit; transition: all 0.15s ease;
+  border: 1px solid var(--border); background: transparent; color: var(--muted);
+  font-size: 0.8rem; font-weight: 600; font-family: inherit;
+  padding: 7px 16px; border-radius: 999px; cursor: pointer;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
 }
-.chip:hover { border-color: var(--cp-border-strong); color: var(--cp-text); }
+.chip:hover { border-color: var(--border-hover); color: var(--text); transform: translateY(-1px); }
 .chip.active {
-  background: var(--cp-accent); border-color: var(--cp-accent);
-  color: var(--cp-accent-fg);
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  border-color: transparent; color: #fff;
+  box-shadow: 0 4px 18px var(--glow-1);
 }
+.search-box { flex: 1 1 200px; min-width: 180px; }
+.search-box input {
+  width: 100%; border: 1px solid var(--border); background: transparent;
+  color: var(--text); font-family: inherit; font-size: 0.86rem;
+  padding: 8px 16px; border-radius: 999px; outline: none;
+  transition: border-color 0.2s;
+}
+.search-box input:focus { border-color: var(--accent); }
+.search-box input::placeholder { color: var(--faint); }
+.result-count { font-size: 0.78rem; color: var(--faint); align-self: flex-end; padding-bottom: 4px; }
 
-/* ---------- Cards grid ---------- */
+/* ---------- Card grid ---------- */
 .grid {
-  display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
-  gap: 16px; margin-bottom: 12px;
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 18px; margin-bottom: 16px; perspective: 1400px;
 }
 .card {
-  background: var(--cp-surface); border: 1px solid var(--cp-border);
-  border-radius: 16px; padding: 18px 18px 16px;
-  box-shadow: 0 0 2px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.14);
-  display: flex; flex-direction: column; gap: 10px;
-  transition: border-color 0.15s ease;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 22px 22px 18px;
+  display: flex; flex-direction: column; gap: 12px;
+  backdrop-filter: blur(14px);
+  position: relative; overflow: hidden;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s, box-shadow 0.35s;
+  animation: cardIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+  transform-style: preserve-3d; will-change: transform;
 }
-.card:hover { border-color: var(--cp-border-strong); }
-.card.dimmed { display: none; }
-.card-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
-.card-title { font-size: 1.02rem; font-weight: 650; line-height: 1.3; }
+@keyframes cardIn { from { opacity: 0; transform: translateY(26px) scale(0.97); } to { opacity: 1; transform: none; } }
+.card::before {
+  content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+  background: radial-gradient(340px circle at var(--mx, 50%) var(--my, 0%), rgba(124, 140, 255, 0.12), transparent 65%);
+  opacity: 0; transition: opacity 0.3s;
+}
+.card:hover { border-color: var(--border-hover); box-shadow: 0 18px 50px rgba(0, 0, 0, 0.28); z-index: 2; }
+.card:hover::before { opacity: 1; }
+.card.default-model { border: 1px solid transparent;
+  background:
+    linear-gradient(var(--bg-1), var(--bg-1)) padding-box,
+    linear-gradient(135deg, var(--accent), var(--accent-2)) border-box;
+}
+html[data-theme="light"] .card.default-model {
+  background:
+    linear-gradient(#ffffff, #ffffff) padding-box,
+    linear-gradient(135deg, var(--accent), var(--accent-2)) border-box;
+}
+.card-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+.card-title { font-size: 1.06rem; font-weight: 700; line-height: 1.3; letter-spacing: -0.01em; }
 .badges { display: flex; flex-wrap: wrap; gap: 5px; justify-content: flex-end; }
 .badge {
-  font-size: 0.6rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
-  padding: 3px 8px; border-radius: 0.625rem; white-space: nowrap;
+  font-size: 0.58rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 3px 9px; border-radius: 999px; white-space: nowrap;
+  border: 1px solid var(--border); color: var(--faint);
 }
-.badge.vendor { background: var(--cp-surface-soft); color: var(--cp-text-soft); border: 1px solid var(--cp-border); }
-.badge.tier-lightweight { background: var(--cp-accent-soft); color: var(--cp-success); border: 1px solid var(--cp-border); }
-.badge.tier-versatile { background: var(--cp-accent-soft); color: var(--cp-warning); border: 1px solid var(--cp-border); }
-.badge.tier-powerful { background: var(--cp-accent-soft); color: var(--cp-accent); border: 1px solid var(--cp-border); }
-.badge.tier-frontier { background: var(--cp-accent); color: var(--cp-accent-fg); }
-.badge.license { background: transparent; color: var(--cp-text-soft); border: 1px dashed var(--cp-border-strong); }
-.card-desc { font-size: 0.85rem; color: var(--cp-text-muted); flex-grow: 1; }
+.badge.vendor { color: var(--muted); }
+.badge.t-lightweight { color: var(--ok); border-color: color-mix(in srgb, var(--ok) 40%, transparent); }
+.badge.t-versatile { color: var(--warn); border-color: color-mix(in srgb, var(--warn) 40%, transparent); }
+.badge.t-powerful { color: var(--accent-3); border-color: color-mix(in srgb, var(--accent-3) 45%, transparent); }
+.badge.t-frontier {
+  background: linear-gradient(135deg, var(--accent), var(--accent-3));
+  color: #fff; border-color: transparent;
+}
+.badge.default {
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  color: #fff; border-color: transparent;
+}
+.card-desc { font-size: 0.86rem; color: var(--muted); flex-grow: 1; }
 .specs {
-  display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;
-  border-top: 1px solid var(--cp-border); padding-top: 10px;
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;
+  border-top: 1px solid var(--border); padding-top: 12px;
 }
-.spec .spec-label {
-  font-size: 0.58rem; letter-spacing: 0.1em; text-transform: uppercase;
-  color: var(--cp-text-soft); font-weight: 700;
+.spec-label {
+  font-size: 0.56rem; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--faint); font-weight: 800;
 }
-.spec .spec-value { font-size: 0.86rem; font-weight: 650; }
+.spec-value { font-size: 0.85rem; font-weight: 700; letter-spacing: -0.01em; }
 .tasktags { display: flex; flex-wrap: wrap; gap: 5px; }
 .tasktag {
-  font-size: 0.62rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
-  color: var(--cp-accent); background: var(--cp-accent-soft);
-  padding: 3px 8px; border-radius: 0.625rem;
-}
-.tasktag.na {
-  color: var(--cp-text-soft); background: var(--cp-surface-soft);
-  border: 1px dashed var(--cp-border-strong);
+  font-size: 0.6rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, transparent);
+  padding: 3px 9px; border-radius: 999px;
 }
 .runline {
-  background: var(--cp-surface-soft); border: 1px solid var(--cp-border);
-  border-radius: 0.625rem; padding: 7px 10px;
-  font-family: Consolas, "Courier New", Courier, monospace;
-  font-size: 0.78rem; color: var(--cp-text);
+  background: rgba(0, 0, 0, 0.25); border: 1px solid var(--border);
+  border-radius: 11px; padding: 8px 12px;
+  font-family: var(--mono); font-size: 0.76rem;
   display: flex; align-items: center; justify-content: space-between; gap: 8px;
 }
+html[data-theme="light"] .runline { background: rgba(15, 23, 42, 0.05); }
+.runline code { overflow-x: auto; white-space: nowrap; scrollbar-width: none; }
 .runline button {
-  border: none; background: transparent; color: var(--cp-link);
-  font-size: 0.7rem; font-weight: 700; cursor: pointer; font-family: inherit;
-  padding: 2px 6px; border-radius: 0.625rem;
+  border: none; background: transparent; color: var(--accent-2);
+  font-size: 0.66rem; font-weight: 800; letter-spacing: 0.08em; cursor: pointer; font-family: var(--font);
+  padding: 3px 8px; border-radius: 7px; transition: background 0.2s; flex-shrink: 0;
 }
-.runline button:hover { background: var(--cp-accent-soft); }
+.runline button:hover { background: color-mix(in srgb, var(--accent-2) 14%, transparent); }
 .empty-note {
-  display: none; color: var(--cp-text-muted); font-size: 0.9rem;
-  padding: 24px; text-align: center; border: 1px dashed var(--cp-border-strong);
-  border-radius: 16px; margin-bottom: 12px;
+  display: none; color: var(--muted); font-size: 0.92rem;
+  padding: 40px 24px; text-align: center;
+  border: 1px dashed var(--border-hover); border-radius: var(--radius); margin-bottom: 16px;
 }
 
-/* ---------- Legend ---------- */
-.legend {
-  display: flex; flex-wrap: wrap; gap: 18px; margin: 14px 0 6px;
-  font-size: 0.78rem; color: var(--cp-text-muted);
-}
-.legend .dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 6px; }
-.legend .d-l { background: var(--cp-success); }
-.legend .d-v { background: var(--cp-warning); }
-.legend .d-p { background: var(--cp-accent); }
-.legend .d-f { background: var(--cp-text); }
+.legend { display: flex; flex-wrap: wrap; gap: 18px; margin: 18px 0 6px; font-size: 0.78rem; color: var(--muted); }
+.legend .dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 7px; }
+.d-l { background: var(--ok); } .d-v { background: var(--warn); }
+.d-p { background: var(--accent-3); } .d-f { background: linear-gradient(135deg, var(--accent), var(--accent-3)); }
 
 .source-note {
-  background: var(--cp-surface-soft); border: 1px solid var(--cp-border);
-  border-radius: 0.625rem; padding: 14px 18px; font-size: 0.82rem;
-  color: var(--cp-text-muted); margin-top: 18px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 14px; padding: 16px 20px; font-size: 0.83rem;
+  color: var(--muted); margin-top: 20px; backdrop-filter: blur(10px);
 }
+.source-note strong { color: var(--text); }
 
 /* ---------- Anti-patterns ---------- */
-.anti-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(480px, 1fr)); gap: 16px; }
+.anti-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(460px, 1fr)); gap: 16px; }
 .anti {
-  background: var(--cp-surface); border: 1px solid var(--cp-border);
-  border-left: 4px solid var(--cp-warning);
-  border-radius: 16px; padding: 16px 18px;
-  box-shadow: 0 0 2px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.14);
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 20px 22px; backdrop-filter: blur(12px);
+  position: relative; overflow: hidden;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s;
 }
-.anti.good { border-left-color: var(--cp-success); }
-.anti h3 { font-size: 0.95rem; font-weight: 650; margin-bottom: 6px; }
-.anti p { font-size: 0.85rem; color: var(--cp-text-muted); }
+.anti::before {
+  content: ""; position: absolute; inset: 0 auto 0 0; width: 4px;
+  background: var(--warn);
+}
+.anti.good::before { background: var(--ok); }
+.anti:hover { transform: translateY(-3px); border-color: var(--border-hover); }
+.anti h3 { font-size: 0.96rem; font-weight: 700; margin-bottom: 7px; }
+.anti p { font-size: 0.85rem; color: var(--muted); }
 .anti code {
-  background: var(--cp-surface-soft); border: 1px solid var(--cp-border);
-  border-radius: 4px; padding: 1px 5px; font-size: 0.78rem;
+  background: rgba(0, 0, 0, 0.25); border: 1px solid var(--border);
+  border-radius: 6px; padding: 1px 6px; font-size: 0.76rem;
 }
+html[data-theme="light"] .anti code { background: rgba(15, 23, 42, 0.05); }
+
+/* ---------- Cookbook ---------- */
+.cookbook-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 26px 30px; backdrop-filter: blur(14px);
+  display: flex; flex-wrap: wrap; align-items: center; gap: 22px;
+  position: relative; overflow: hidden;
+}
+.cookbook-card::before {
+  content: ""; position: absolute; inset: 0 auto 0 0; width: 4px;
+  background: linear-gradient(180deg, var(--accent), var(--accent-3));
+}
+.cb-body { flex: 1 1 380px; }
+.cookbook-card h3 { font-size: 1.1rem; font-weight: 720; margin-bottom: 5px; }
+.cookbook-card p { font-size: 0.87rem; color: var(--muted); }
+.dl-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  color: #fff !important; font-weight: 750; font-size: 0.87rem; letter-spacing: 0.02em;
+  padding: 12px 26px; border-radius: 999px; white-space: nowrap;
+  transition: transform 0.2s, box-shadow 0.25s;
+  box-shadow: 0 6px 24px var(--glow-1);
+}
+.dl-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 32px var(--glow-1); text-decoration: none; }
+.star-panel {
+  display: none; margin-top: 18px; padding: 15px 20px; width: 100%;
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+  border: 1px solid var(--border); border-radius: 13px;
+  font-size: 0.87rem; align-items: center; gap: 14px; flex-wrap: wrap;
+  animation: cardIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.star-panel.visible { display: flex; }
+.star-panel a.star-link {
+  display: inline-block; border: 1px solid var(--border-hover); background: var(--surface);
+  color: var(--text) !important; font-weight: 750; font-size: 0.8rem;
+  padding: 7px 18px; border-radius: 999px; transition: border-color 0.2s, transform 0.15s;
+}
+.star-panel a.star-link:hover { border-color: var(--accent); transform: translateY(-1px); text-decoration: none; }
 
 /* ---------- References ---------- */
 .ref-list { display: flex; flex-direction: column; gap: 12px; }
 .ref {
-  background: var(--cp-surface); border: 1px solid var(--cp-border);
-  border-radius: 0.625rem; padding: 14px 18px;
-  display: flex; gap: 16px; align-items: baseline;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 14px; padding: 15px 20px; backdrop-filter: blur(10px);
+  display: flex; gap: 18px; align-items: baseline;
+  transition: border-color 0.2s, transform 0.2s;
 }
-.ref .ref-kind {
-  flex: 0 0 150px; font-size: 0.65rem; letter-spacing: 0.12em; text-transform: uppercase;
-  color: var(--cp-accent); font-weight: 700;
+.ref:hover { border-color: var(--border-hover); transform: translateX(4px); }
+.ref-kind {
+  flex: 0 0 150px; font-size: 0.62rem; letter-spacing: 0.12em; text-transform: uppercase;
+  font-weight: 800;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  -webkit-background-clip: text; background-clip: text; color: transparent;
 }
-.ref .ref-body { font-size: 0.88rem; color: var(--cp-text-muted); }
-.ref .ref-body a { font-weight: 600; }
+.ref-body { font-size: 0.87rem; color: var(--muted); }
+.ref-body a { font-weight: 650; }
 
 footer {
-  margin-top: 48px; padding: 28px 0 40px;
-  border-top: 1px solid var(--cp-border);
-  color: var(--cp-text-soft); font-size: 0.78rem;
+  margin-top: 64px; padding: 32px 0 48px;
+  border-top: 1px solid var(--border);
+  color: var(--faint); font-size: 0.79rem;
 }
-footer .wrap { max-width: 900px; }
+footer .wrap { max-width: 940px; }
+footer a { color: var(--muted); }
 
-@media (max-width: 640px) {
-  h1 { font-size: 1.6rem; }
+@media (max-width: 680px) {
   .anti-grid { grid-template-columns: 1fr; }
-  .ref { flex-direction: column; gap: 4px; }
+  .ref { flex-direction: column; gap: 5px; }
   .specs { grid-template-columns: repeat(2, 1fr); }
+  .controls { position: static; }
 }
 </style>
 </head>
@@ -275,25 +393,31 @@ footer .wrap { max-width: 900px; }
 
 <header>
   <div class="wrap">
-    <div class="eyebrow">
-      <span class="tag">Model Selection</span>
-      <span>v1 · sourced from ollama.com &amp; model cards</span>
+    <div class="topbar">
+      <div class="brand">Enterprise LLM Playbook</div>
+      <div class="top-actions">
+        <a class="icon-btn" href="https://github.com/heisenberg-alt/oss-model-playbook" target="_blank" rel="noopener">★ Star on GitHub</a>
+        <button class="icon-btn" id="themeToggle" aria-label="Toggle color theme">Theme</button>
+      </div>
     </div>
-    <h1>Which open-weight model · and when</h1>
-    <div class="subtitle">Default to a small local model. Scale up when the task demands it.</div>
-    <p class="lede">
-      Ollama's library exposes dozens of open-weight models from Meta, Alibaba (Qwen), DeepSeek,
-      Mistral, Google, Microsoft, OpenAI, Moonshot and Zhipu. You don't need to memorise them —
-      you need a clear rule: <strong>start with a lightweight model that fits your hardware, then
-      escalate or downshift based on the task</strong>. This page maps the familiar five-task
-      taxonomy to recommended open-weight models, with hardware footprint and license overlaid on
-      every card instead of per-token pricing — because locally, <em>your currency is VRAM, not credits</em>.
+    <h1 class="reveal in">Which open-weight model,<br /><span class="grad">and when.</span></h1>
+    <p class="lede reveal in">
+      Open-weight models from Alibaba, DeepSeek, Meta, Mistral, Google, Microsoft, OpenAI,
+      Moonshot and Z.ai — mapped to a simple rule: <strong>start with a lightweight model that
+      fits your hardware, then escalate or downshift based on the task</strong>. Every card
+      shows the real currency of local inference: <em>memory, not credits</em>.
     </p>
-    <div class="default-card">
-      <span class="badge-default">Default</span>
+    <div class="hero-stats reveal in">
+      <div class="stat"><div class="n" id="statModels">—</div><div class="l">Models</div></div>
+      <div class="stat"><div class="n">5</div><div class="l">Task lenses</div></div>
+      <div class="stat"><div class="n">4</div><div class="l">Hardware tiers</div></div>
+      <div class="stat"><div class="n">Jul 2026</div><div class="l">Verified</div></div>
+    </div>
+    <div class="default-banner reveal in">
+      <span class="tag">Default</span>
       <div>
         <strong class="mono">qwen3-coder:30b</strong><br />
-        <span class="desc">MoE — 30B total, only 3B active per token. Near-frontier agentic coding at laptop-class memory (~19&nbsp;GB). Apache-2.0.</span>
+        <span class="desc">MoE — 30B total, only 3B active per token. Near-frontier agentic coding at laptop-class memory (~19 GB). Apache-2.0.</span>
       </div>
     </div>
   </div>
@@ -301,97 +425,101 @@ footer .wrap { max-width: 900px; }
 
 <section>
   <div class="wrap">
-    <div class="section-kicker">1 · Pick the task, see the model</div>
-    <h2>Filter by task and by hardware, not by hype</h2>
-    <p class="section-sub">
-      The same five task categories used in the Copilot model comparison, applied to open weights.
-      Filter by what you're doing and what you're running on. All sizes are the default
-      quantisation (<span class="mono">Q4_K_M</span> or MXFP4) download from the Ollama library.
+    <div class="kicker reveal">01 · The catalog</div>
+    <h2 class="reveal">Filter by task and hardware, not by hype</h2>
+    <p class="section-sub reveal">
+      Sizes are the default quantization (<span class="mono">Q4_K_M</span> or MXFP4) from the
+      Ollama library; frontier models list safetensors footprints. Licenses as declared on each
+      Hugging Face model card.
     </p>
 
-    <div class="filters">
-      <div class="filter-group">
-        <div class="filter-label">Task category</div>
+    <div class="controls reveal">
+      <div class="control-group">
+        <div class="label">Task</div>
         <div class="chiprow" id="taskChips">
           <button class="chip active" data-task="all">All</button>
           <button class="chip" data-task="general">General coding &amp; writing</button>
           <button class="chip" data-task="fast">Fast / repetitive</button>
-          <button class="chip" data-task="reasoning">Deep reasoning &amp; debugging</button>
+          <button class="chip" data-task="reasoning">Deep reasoning</button>
           <button class="chip" data-task="agentic">Agentic development</button>
-          <button class="chip" data-task="visuals">Visuals (images, screenshots)</button>
+          <button class="chip" data-task="visuals">Visuals</button>
         </div>
       </div>
-      <div class="filter-group">
-        <div class="filter-label">Hardware</div>
+      <div class="control-group">
+        <div class="label">Hardware</div>
         <div class="chiprow" id="hwChips">
           <button class="chip active" data-hw="all">Any</button>
-          <button class="chip" data-hw="laptop">Laptop · ≤16 GB unified/RAM</button>
-          <button class="chip" data-hw="gpu">Single GPU · 24–32 GB VRAM</button>
-          <button class="chip" data-hw="server">Workstation / server · 48 GB+</button>
+          <button class="chip" data-hw="laptop">Laptop ≤ 16 GB</button>
+          <button class="chip" data-hw="gpu">GPU 24–32 GB</button>
+          <button class="chip" data-hw="server">Server 48 GB+</button>
         </div>
       </div>
+      <div class="control-group search-box">
+        <div class="label">Search</div>
+        <input type="search" id="searchInput" placeholder="Model, vendor, license…" />
+      </div>
+      <div class="result-count" id="resultCount"></div>
     </div>
 
     <div class="grid" id="cardGrid"></div>
-    <div class="empty-note" id="emptyNote">No model in the library matches this task on this hardware tier — step up a tier or serve it remotely (Ollama cloud, vLLM on a rented GPU).</div>
+    <div class="empty-note" id="emptyNote">No model matches this combination — step up a hardware tier or serve it remotely (vLLM on a rented GPU, or a hosted API).</div>
 
-    <div class="legend">
-      <span><span class="dot d-l"></span><strong>Lightweight</strong> — fits in ≤16 GB, fast tokens</span>
+    <div class="legend reveal">
+      <span><span class="dot d-l"></span><strong>Lightweight</strong> — fits in ≤ 16 GB, fast tokens</span>
       <span><span class="dot d-v"></span><strong>Versatile</strong> — 24–32 GB single-GPU workhorse</span>
       <span><span class="dot d-p"></span><strong>Powerful</strong> — 48 GB+ workstation / server</span>
       <span><span class="dot d-f"></span><strong>Frontier</strong> — multi-GPU cluster or hosted</span>
     </div>
 
-    <div class="source-note">
+    <div class="source-note reveal">
       <strong>Footprint source</strong> — download sizes are the default-quant tags on
       <a href="https://ollama.com/library" target="_blank" rel="noopener">ollama.com/library</a>.
       Rule of thumb: <em>usable memory ≈ model size + KV cache</em>, and KV cache grows with
-      context length — a 128K-token context can add several GB. Licenses are as declared on each
-      model's Hugging Face card; Apache-2.0 and MIT are unrestricted, Llama and Gemma carry custom
-      acceptable-use terms — check them before shipping commercially.
+      context length — a 128K-token context can add several GB. Apache-2.0 and MIT are
+      unrestricted; Llama, Gemma and Modified MIT carry terms to review before shipping commercially.
     </div>
   </div>
 </section>
 
 <section>
   <div class="wrap">
-    <div class="section-kicker">2 · Anti-patterns to call out</div>
-    <h2>The five most expensive local-model mistakes</h2>
-    <p class="section-sub">Expensive in hours and hardware rather than AI Credits — and how to avoid them.</p>
+    <div class="kicker reveal">02 · Anti-patterns</div>
+    <h2 class="reveal">The five most expensive local-model mistakes</h2>
+    <p class="section-sub reveal">Expensive in hours and hardware — and how to avoid them.</p>
     <div class="anti-grid">
-      <div class="anti">
-        <h3>⚠️ Frontier MoE pulled onto a laptop</h3>
+      <div class="anti reveal">
+        <h3>⚠ Frontier MoE pulled onto a laptop</h3>
         <p><code>ollama pull deepseek-v3.1:671b</code> is a ~400 GB download that will swap-thrash
-        any consumer machine into oblivion. If you want R1-class reasoning locally, use the
+        any consumer machine into oblivion. If you want frontier-class reasoning locally, use the
         distilled variants (<code>deepseek-r1:8b</code> / <code>:14b</code> / <code>:32b</code>) —
         or run the full model hosted and keep local for everything else.</p>
       </div>
-      <div class="anti">
-        <h3>⚠️ Default context window in agent loops</h3>
+      <div class="anti reveal">
+        <h3>⚠ Default context window in agent loops</h3>
         <p>Ollama's default context is small (4K on many tags). Agent workflows silently truncate
         tool output and file contents, producing confidently wrong answers. Set
         <code>OLLAMA_CONTEXT_LENGTH</code> or <code>num_ctx</code> explicitly (32K+ for agents) —
         and budget the extra KV-cache memory that comes with it.</p>
       </div>
-      <div class="anti">
-        <h3>⚠️ Reasoning model on autocomplete-style tasks</h3>
-        <p>Thinking models (DeepSeek-R1, Qwen3 in thinking mode) emit hundreds of reasoning tokens
-        before answering — terrible latency for "rename this variable". Use a small coder model
-        with fill-in-the-middle support (<code>qwen2.5-coder:7b</code>) for completions; save
-        thinking models for genuinely hard debugging.</p>
+      <div class="anti reveal">
+        <h3>⚠ Reasoning model on autocomplete-style tasks</h3>
+        <p>Thinking models emit hundreds of reasoning tokens before answering — terrible latency
+        for "rename this variable". Use a small coder model with fill-in-the-middle support
+        (<code>qwen2.5-coder:7b</code>) for completions; save thinking models for genuinely hard
+        debugging.</p>
       </div>
-      <div class="anti">
-        <h3>⚠️ Over-quantised weights, under-diagnosed quality</h3>
+      <div class="anti reveal">
+        <h3>⚠ Over-quantised weights, under-diagnosed quality</h3>
         <p>A 70B at Q2 usually loses to a 32B at Q4 while costing more memory. If quality drops,
         suspect the quantisation before the model family. Q4_K_M is the sane default; go Q8/FP16
         only when you have headroom and a measured quality gap.</p>
       </div>
-      <div class="anti good">
-        <h3>✅ Start small, then promote</h3>
+      <div class="anti good reveal">
+        <h3>✓ Start small, then promote</h3>
         <p>Start every workflow on a Lightweight-tier model that fits comfortably in memory. Only
         promote to a bigger model when you can name the failure (missed multi-file dependency, weak
-        reasoning chain, hallucinated API). This is the local equivalent of "use Auto, then promote"
-        — it keeps your iteration loop fast and your GPU thermals sane.</p>
+        reasoning chain, hallucinated API). It keeps your iteration loop fast and your GPU
+        thermals sane.</p>
       </div>
     </div>
   </div>
@@ -399,28 +527,51 @@ footer .wrap { max-width: 900px; }
 
 <section>
   <div class="wrap">
-    <div class="section-kicker">3 · Authoritative references</div>
-    <h2>Where these recommendations come from</h2>
-    <div class="ref-list">
-      <div class="ref">
-        <div class="ref-kind">Model library</div>
-        <div class="ref-body"><a href="https://ollama.com/library" target="_blank" rel="noopener">Ollama model library</a> — tags, quantisations, download sizes and context windows for every model on this page.</div>
+    <div class="kicker reveal">03 · Take it with you</div>
+    <h2 class="reveal">Team cookbook — download and share</h2>
+    <p class="section-sub reveal">
+      Eleven condensed, print-ready recipes covering track selection, capacity sizing, vLLM
+      serving, the gateway, IDE integration, SLOs, cost break-evens, and the security baseline.
+    </p>
+    <div class="cookbook-card reveal">
+      <div class="cb-body">
+        <h3>Open-Weight LLM Platform — Team Cookbook</h3>
+        <p>Edition 1 · July 2026 · PDF · Print-ready · No tracking, no dependencies</p>
       </div>
-      <div class="ref">
+      <a class="dl-btn" id="cookbookDownload" href="cookbook.pdf" download="oss-model-cookbook.pdf">Download cookbook (PDF)</a>
+      <div class="star-panel" id="starPanel">
+        <span><strong>Thank you for downloading.</strong> If the cookbook is useful to your team,
+        consider starring the repository — stars help other teams find it.</span>
+        <a class="star-link" href="https://github.com/heisenberg-alt/oss-model-playbook" target="_blank" rel="noopener">★ Star on GitHub</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="kicker reveal">04 · Authoritative references</div>
+    <h2 class="reveal">Where these recommendations come from</h2>
+    <div class="ref-list">
+      <div class="ref reveal">
+        <div class="ref-kind">Model library</div>
+        <div class="ref-body"><a href="https://ollama.com/library" target="_blank" rel="noopener">Ollama model library</a> — tags, quantisations, download sizes and context windows for every locally-served model on this page.</div>
+      </div>
+      <div class="ref reveal">
         <div class="ref-kind">Context length</div>
         <div class="ref-body"><a href="https://docs.ollama.com/context-length" target="_blank" rel="noopener">Ollama docs — context length</a> — how to set <span class="mono">num_ctx</span> / <span class="mono">OLLAMA_CONTEXT_LENGTH</span> and what it costs in memory.</div>
       </div>
-      <div class="ref">
+      <div class="ref reveal">
         <div class="ref-kind">GPU support</div>
         <div class="ref-body"><a href="https://docs.ollama.com/gpu" target="_blank" rel="noopener">Ollama docs — GPU support</a> — supported NVIDIA / AMD / Apple silicon configurations and memory behaviour.</div>
       </div>
-      <div class="ref">
+      <div class="ref reveal">
         <div class="ref-kind">Licenses</div>
-        <div class="ref-body">Hugging Face model cards — the authoritative license text per model: <a href="https://huggingface.co/Qwen" target="_blank" rel="noopener">Qwen</a>, <a href="https://huggingface.co/deepseek-ai" target="_blank" rel="noopener">DeepSeek</a>, <a href="https://huggingface.co/meta-llama" target="_blank" rel="noopener">Meta Llama</a>, <a href="https://huggingface.co/mistralai" target="_blank" rel="noopener">Mistral</a>, <a href="https://huggingface.co/google" target="_blank" rel="noopener">Google Gemma</a>, <a href="https://huggingface.co/openai" target="_blank" rel="noopener">OpenAI gpt-oss</a>.</div>
+        <div class="ref-body">Hugging Face model cards — the authoritative license text per model: <a href="https://huggingface.co/Qwen" target="_blank" rel="noopener">Qwen</a>, <a href="https://huggingface.co/deepseek-ai" target="_blank" rel="noopener">DeepSeek</a>, <a href="https://huggingface.co/meta-llama" target="_blank" rel="noopener">Meta Llama</a>, <a href="https://huggingface.co/mistralai" target="_blank" rel="noopener">Mistral</a>, <a href="https://huggingface.co/google" target="_blank" rel="noopener">Google Gemma</a>, <a href="https://huggingface.co/openai" target="_blank" rel="noopener">OpenAI gpt-oss</a>, <a href="https://huggingface.co/moonshotai" target="_blank" rel="noopener">Moonshot Kimi</a>, <a href="https://huggingface.co/zai-org" target="_blank" rel="noopener">Z.ai GLM</a>.</div>
       </div>
-      <div class="ref">
+      <div class="ref reveal">
         <div class="ref-kind">Copilot + Ollama</div>
-        <div class="ref-body"><a href="https://code.visualstudio.com/docs/copilot/customization/language-models" target="_blank" rel="noopener">VS Code — bring your own language model</a> — using Ollama-served models inside GitHub Copilot Chat via the local model provider.</div>
+        <div class="ref-body"><a href="https://code.visualstudio.com/docs/copilot/customization/language-models" target="_blank" rel="noopener">VS Code — bring your own language model</a> — using locally served models inside GitHub Copilot Chat via the local model provider.</div>
       </div>
     </div>
   </div>
@@ -428,17 +579,16 @@ footer .wrap { max-width: 900px; }
 
 <footer>
   <div class="wrap">
-    This content mirrors the structure of the GitHub Copilot UBB model picker, adapted for
-    open-weight models served through Ollama. Model sizes, context windows and licenses change
-    frequently as new tags are published; verify against the Ollama library and the upstream
-    Hugging Face model cards before making hardware or licensing decisions. Not an official
-    recommendation from any model vendor.
+    Part of the <a href="https://github.com/heisenberg-alt/oss-model-playbook">Open-Weight LLM Platform Playbook</a>.
+    Model sizes, context windows and licenses change frequently as new tags are published; verify
+    against the Ollama library and upstream Hugging Face model cards before making hardware or
+    licensing decisions. Not an official recommendation from any model vendor. Verified July 2026.
   </div>
 </footer>
 
 <script>
 const MODELS = [
-  // ---------------- Lightweight (laptop, ≤16 GB) ----------------
+  // ---------------- Lightweight (laptop, <=16 GB) ----------------
   {
     name: "Qwen2.5-Coder 7B", vendor: "ALIBABA", tier: "lightweight", hw: "laptop",
     desc: "Purpose-built code model with fill-in-the-middle support — the best open tab-completion engine per GB. Low latency even on CPU.",
@@ -482,7 +632,13 @@ const MODELS = [
     license: "Apache-2.0", tasks: ["general", "agentic", "fast"], run: "ollama run qwen3-coder:30b", isDefault: true
   },
 
-  // ---------------- Versatile (single GPU, 24–32 GB) ----------------
+  // ---------------- Versatile (single GPU, 24-32 GB) ----------------
+  {
+    name: "Qwen3.6 27B", vendor: "ALIBABA", tier: "versatile", hw: "gpu",
+    desc: "Flagship-level coding in a 27B dense model with native vision. Gated DeltaNet hybrid attention, thinking preserved across turns, 262K native context (1M via YaRN).",
+    params: "27B dense", size: "17 GB", mem: "24 GB", ctx: "262K → 1M",
+    license: "Apache-2.0", tasks: ["general", "agentic", "reasoning", "visuals"], run: "ollama run qwen3.6:27b"
+  },
   {
     name: "gpt-oss 20B", vendor: "OPENAI", tier: "versatile", hw: "gpu",
     desc: "OpenAI's open-weight reasoner. Native MXFP4 quantisation, adjustable reasoning effort, solid tool calling. Fits on a 16 GB GPU.",
@@ -551,6 +707,12 @@ const MODELS = [
     params: "235B MoE · 22B act", size: "142 GB", mem: "150 GB+", ctx: "256K",
     license: "Apache-2.0", tasks: ["reasoning", "general", "agentic"], run: "ollama run qwen3:235b"
   },
+  {
+    name: "DeepSeek-V4 Flash", vendor: "DEEPSEEK", tier: "powerful", hw: "server",
+    desc: "The efficiency play of the V4 series: 284B MoE with only 13B active and 1M context via hybrid sparse attention. Pro-class reasoning at a fraction of the compute.",
+    params: "284B MoE · 13B act", size: "~160 GB (FP4/FP8)", mem: "multi-GPU", ctx: "1M",
+    license: "MIT", tasks: ["reasoning", "general", "agentic"], run: "vllm serve deepseek-ai/DeepSeek-V4-Flash"
+  },
 
   // ---------------- Frontier (cluster or hosted) ----------------
   {
@@ -560,10 +722,10 @@ const MODELS = [
     license: "Apache-2.0", tasks: ["agentic", "general", "reasoning"], run: "ollama run qwen3-coder:480b"
   },
   {
-    name: "DeepSeek-V3.1 / R1 671B", vendor: "DEEPSEEK", tier: "frontier", hw: "server",
-    desc: "The model that proved open weights could match closed frontier reasoning. Hybrid think/non-think modes. Run it hosted; keep the distills local.",
-    params: "671B MoE · 37B act", size: "~400 GB", mem: "multi-GPU / hosted", ctx: "128K",
-    license: "MIT", tasks: ["reasoning"], run: "ollama run deepseek-v3.1:671b"
+    name: "DeepSeek-V4 Pro", vendor: "DEEPSEEK", tier: "frontier", hw: "server",
+    desc: "DeepSeek's frontier: 1.6T MoE (49B active), 1M context needing only 10% of V3.2's KV cache. Think-Max mode is among the strongest open reasoning available.",
+    params: "1.6T MoE · 49B act", size: "~900 GB (FP4/FP8)", mem: "multi-GPU / hosted", ctx: "1M",
+    license: "MIT", tasks: ["reasoning", "agentic", "general"], run: "vllm serve deepseek-ai/DeepSeek-V4-Pro"
   },
   {
     name: "Kimi K2 1T (A32B)", vendor: "MOONSHOT", tier: "frontier", hw: "server",
@@ -578,10 +740,22 @@ const MODELS = [
     license: "TBD at release", tasks: ["agentic", "reasoning", "general", "visuals"], run: "api.moonshot.ai · model=kimi-k3"
   },
   {
-    name: "GLM-4.6 355B (A32B)", vendor: "ZHIPU", tier: "frontier", hw: "server",
-    desc: "Zhipu's coding-focused flagship — strong real-world agentic coding and front-end generation, popular as a hosted Claude-alternative for code.",
+    name: "GLM-5.2 753B (A32B)", vendor: "Z.AI", tier: "frontier", hw: "server",
+    desc: "Z.ai's long-horizon flagship: solid 1M context via IndexShare sparse attention (2.9× fewer per-token FLOPs at 1M), flexible thinking effort, improved MTP speculative decoding. Pure MIT.",
+    params: "753B MoE · 32B act", size: "~400 GB (FP8)", mem: "multi-GPU / hosted", ctx: "1M",
+    license: "MIT", tasks: ["agentic", "general", "reasoning"], run: "vllm serve zai-org/GLM-5.2-FP8"
+  },
+  {
+    name: "GLM-4.6 355B (A32B)", vendor: "Z.AI", tier: "frontier", hw: "server",
+    desc: "The previous coding-focused flagship — strong real-world agentic coding and front-end generation; still the most cluster-affordable GLM. Superseded by GLM-5.1/5.2 at the top end.",
     params: "355B MoE · 32B act", size: "~200 GB", mem: "multi-GPU / hosted", ctx: "200K",
     license: "MIT", tasks: ["agentic", "general", "reasoning"], run: "ollama run glm-4.6"
+  },
+  {
+    name: "DeepSeek-V3.1 / R1 671B", vendor: "DEEPSEEK", tier: "frontier", hw: "server",
+    desc: "The model that proved open weights could match closed frontier reasoning. Hybrid think/non-think modes. Superseded by V4, but distills remain the local reasoning staple.",
+    params: "671B MoE · 37B act", size: "~400 GB", mem: "multi-GPU / hosted", ctx: "128K",
+    license: "MIT", tasks: ["reasoning"], run: "ollama run deepseek-v3.1:671b"
   }
 ];
 
@@ -597,36 +771,43 @@ const TIER_LABEL = { lightweight: "Lightweight", versatile: "Versatile", powerfu
 
 const grid = document.getElementById("cardGrid");
 const emptyNote = document.getElementById("emptyNote");
+const resultCount = document.getElementById("resultCount");
+document.getElementById("statModels").textContent = MODELS.length;
+
 let activeTask = "all";
 let activeHw = "all";
+let query = "";
 
 function fitsHw(model, hw) {
   if (hw === "all") return true;
-  // A model "fits" a tier if its minimum tier is at or below the selected tier.
   return HW_ORDER[model.hw] <= HW_ORDER[hw];
+}
+function matchesQuery(m, q) {
+  if (!q) return true;
+  const hay = `${m.name} ${m.vendor} ${m.license} ${m.desc} ${m.params}`.toLowerCase();
+  return q.toLowerCase().split(/\s+/).every((w) => hay.includes(w));
 }
 
 function render() {
   grid.innerHTML = "";
   let shown = 0;
   MODELS.forEach((m) => {
-    const taskOk = activeTask === "all" || m.tasks.includes(activeTask);
-    const hwOk = fitsHw(m, activeHw);
-    if (!taskOk || !hwOk) return;
+    const ok = (activeTask === "all" || m.tasks.includes(activeTask)) && fitsHw(m, activeHw) && matchesQuery(m, query);
+    if (!ok) return;
     shown++;
 
     const card = document.createElement("article");
-    card.className = "card" + (m.isDefault ? " default" : "");
-    card.style.borderLeft = m.isDefault ? "4px solid var(--cp-accent)" : "";
+    card.className = "card" + (m.isDefault ? " default-model" : "");
+    card.style.animationDelay = `${Math.min(shown * 40, 400)}ms`;
 
     const tags = m.tasks.map((t) => `<span class="tasktag">${TASK_LABELS[t]}</span>`).join("");
     card.innerHTML = `
       <div class="card-head">
-        <div class="card-title">${m.name}${m.isDefault ? ' <span class="badge tier-frontier" style="vertical-align:2px">Default</span>' : ""}</div>
+        <div class="card-title">${m.name}${m.isDefault ? ' <span class="badge default" style="vertical-align:3px">Default</span>' : ""}</div>
         <div class="badges">
           <span class="badge vendor">${m.vendor}</span>
-          <span class="badge tier-${m.tier}">${TIER_LABEL[m.tier]}</span>
-          <span class="badge license">${m.license}</span>
+          <span class="badge t-${m.tier}">${TIER_LABEL[m.tier]}</span>
+          <span class="badge">${m.license}</span>
         </div>
       </div>
       <p class="card-desc">${m.desc}</p>
@@ -642,6 +823,7 @@ function render() {
     grid.appendChild(card);
   });
   emptyNote.style.display = shown === 0 ? "block" : "none";
+  resultCount.textContent = `${shown} / ${MODELS.length} models`;
 }
 
 function wireChips(containerId, attr, onPick) {
@@ -658,6 +840,12 @@ function wireChips(containerId, attr, onPick) {
 wireChips("taskChips", "task", (v) => (activeTask = v));
 wireChips("hwChips", "hw", (v) => (activeHw = v));
 
+document.getElementById("searchInput").addEventListener("input", (e) => {
+  query = e.target.value.trim();
+  render();
+});
+
+// Copy-to-clipboard
 grid.addEventListener("click", (e) => {
   const btn = e.target.closest("button[data-cmd]");
   if (!btn) return;
@@ -666,6 +854,49 @@ grid.addEventListener("click", (e) => {
     btn.textContent = "COPIED";
     setTimeout(() => (btn.textContent = old), 1200);
   });
+});
+
+// 3D tilt + cursor glow on cards (pointer devices only, respects reduced motion)
+const finePointer = window.matchMedia("(pointer: fine)").matches;
+const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+if (finePointer && !reducedMotion) {
+  grid.addEventListener("pointermove", (e) => {
+    const card = e.target.closest(".card");
+    if (!card) return;
+    const r = card.getBoundingClientRect();
+    const x = (e.clientX - r.left) / r.width;
+    const y = (e.clientY - r.top) / r.height;
+    card.style.setProperty("--mx", `${x * 100}%`);
+    card.style.setProperty("--my", `${y * 100}%`);
+    card.style.transform = `rotateY(${(x - 0.5) * 7}deg) rotateX(${(0.5 - y) * 6}deg) translateY(-4px)`;
+  });
+  grid.addEventListener("pointerout", (e) => {
+    const card = e.target.closest(".card");
+    if (card) card.style.transform = "";
+  });
+}
+
+// Reveal-on-scroll
+const io = new IntersectionObserver((entries) => {
+  entries.forEach((en) => { if (en.isIntersecting) { en.target.classList.add("in"); io.unobserve(en.target); } });
+}, { threshold: 0.08 });
+document.querySelectorAll(".reveal:not(.in)").forEach((el) => io.observe(el));
+
+// Theme toggle (dark default, persisted)
+const root = document.documentElement;
+const saved = localStorage.getItem("pickerTheme");
+if (saved) root.dataset.theme = saved;
+else if (window.matchMedia("(prefers-color-scheme: light)").matches) root.dataset.theme = "light";
+document.getElementById("themeToggle").addEventListener("click", () => {
+  const next = root.dataset.theme === "light" ? "dark" : "light";
+  root.dataset.theme = next;
+  localStorage.setItem("pickerTheme", next);
+});
+
+// Cookbook download: reveal the star prompt after the download starts.
+// Note: starring requires the visitor's own GitHub account — it cannot be automated.
+document.getElementById("cookbookDownload").addEventListener("click", () => {
+  document.getElementById("starPanel").classList.add("visible");
 });
 
 render();

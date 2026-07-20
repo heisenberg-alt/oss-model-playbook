@@ -8,11 +8,11 @@ The engine choice matters more than the model choice:
 | | **Ollama** | **vLLM** | **KAITO (AKS add-on)** | **Foundry managed compute** |
 |---|---|---|---|---|
 | Designed for | Single user, local | High-throughput multi-tenant serving | Turnkey vLLM on AKS | Zero-ops dedicated endpoint |
-| Continuous batching | Basic | ✅ Best-in-class (PagedAttention) | ✅ (vLLM under the hood) | ✅ (engine managed for you) |
-| Tensor parallelism (multi-GPU per model) | ❌ (layer offload only) | ✅ | ✅ | ✅ |
+| Continuous batching | Basic | ✓ Best-in-class (PagedAttention) | ✓ (vLLM under the hood) | ✓ (engine managed for you) |
+| Tensor parallelism (multi-GPU per model) | ✗ (layer offload only) | ✓ | ✓ | ✓ |
 | Concurrent request throughput | Low — a handful of parallel decodes | 10–100× Ollama at high concurrency | Same as vLLM | SKU-dependent |
-| Quantized GGUF ergonomics | ✅ Excellent | Partial (GPTQ/AWQ/FP8 preferred) | Preset images | N/A |
-| OpenAI-compatible API | ✅ | ✅ | ✅ | ✅ |
+| Quantized GGUF ergonomics | ✓ Excellent | Partial (GPTQ/AWQ/FP8 preferred) | Preset images | N/A |
+| OpenAI-compatible API | ✓ | ✓ | ✓ | ✓ |
 | Ops burden | Trivial | You run it | AKS add-on manages lifecycle | None (PaaS) |
 
 > **Rule of thumb:** Ollama up to ~5 concurrent users per box. Anything labelled
@@ -73,19 +73,19 @@ Two sub-modes (Foundry model catalog):
 **C1 — Serverless API / standard deployment (pay-per-token)** — available for flagship open
 models sold through Azure (Llama, DeepSeek R1, Mistral, gpt-oss, Grok, etc.)
 
-- ✅ Zero infrastructure. Per-token billing. Content filtering built in. Fastest time-to-first-request (minutes).
-- ✅ Great for spiky/low-volume usage and for the *reasoning escalation tier* while your main traffic runs on Track A/B.
-- ❌ Per-token cost scales linearly with usage forever — at 100-dev agentic volume this usually exceeds dedicated compute.
-- ❌ Model list limited to what Azure sells serverless; no custom fine-tunes on this mode; regional availability varies.
+- ✓ Zero infrastructure. Per-token billing. Content filtering built in. Fastest time-to-first-request (minutes).
+- ✓ Great for spiky/low-volume usage and for the *reasoning escalation tier* while your main traffic runs on Track A/B.
+- ✗ Per-token cost scales linearly with usage forever — at 100-dev agentic volume this usually exceeds dedicated compute.
+- ✗ Model list limited to what Azure sells serverless; no custom fine-tunes on this mode; regional availability varies.
 
 **C2 — Managed compute (dedicated)** — deploy *any* catalog/HF/custom model onto dedicated
 GPU VMs that Azure operates, billed per compute-hour.
 
-- ✅ Any open/custom model incl. Hugging Face collection & NVIDIA NIMs; endpoint + autoscale managed; no cluster.
-- ✅ Private networking supported; billed per uptime minute, delete = stop paying.
-- ❌ You pay for the VM whether busy or idle (same economics as Track B without the cluster flexibility).
-- ❌ Less engine-level tuning surface than running vLLM yourself (batching knobs, prefix cache, spec decode configs).
-- ❌ No content filtering on managed compute (unlike standard/serverless) — bring your own guardrails.
+- ✓ Any open/custom model incl. Hugging Face collection & NVIDIA NIMs; endpoint + autoscale managed; no cluster.
+- ✓ Private networking supported; billed per uptime minute, delete = stop paying.
+- ✗ You pay for the VM whether busy or idle (same economics as Track B without the cluster flexibility).
+- ✗ Less engine-level tuning surface than running vLLM yourself (batching knobs, prefix cache, spec decode configs).
+- ✗ No content filtering on managed compute (unlike standard/serverless) — bring your own guardrails.
 
 ### Summary decision table
 
@@ -110,9 +110,9 @@ GPU VMs that Azure operates, billed per compute-hour.
 
 **The hybrid pattern (most common at 50+):** dedicated GPUs (Track A/B) serve the default
 coder model at high utilization; the gateway routes frontier-reasoning requests (a few % of
-traffic) to Foundry serverless DeepSeek-R1/Kimi-K2/K3 pay-per-token. Best of both cost curves.
-(Kimi K3 — 2.8T MoE, 1M context — is hosted-API only until its weights release on 2026-07-27;
-self-hosting it is a multi-node cluster proposition regardless.)
+traffic) to serverless pay-per-token frontier models (DeepSeek-V4, GLM-5.2, Kimi-K2/K3).
+Best of both cost curves. (Kimi K3 — 2.8T MoE, 1M context — is hosted-API only until its
+weights release on 2026-07-27; self-hosting any of these is a multi-node cluster proposition.)
 
 ## 5. What NOT to do
 
