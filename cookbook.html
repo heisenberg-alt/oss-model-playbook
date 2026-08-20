@@ -104,7 +104,7 @@ footer p { font-size: 0.8rem; color: var(--faint); }
 
 <header>
   <div class="wrap">
-    <div class="eyebrow">Cookbook · Edition 1 · July 2026</div>
+    <div class="eyebrow">Cookbook · Edition 1.1 · August 2026</div>
     <h1>Open-Weight LLM Platform — Team Cookbook</h1>
     <p class="subtitle">
       Eleven field-tested recipes for standing up an enterprise-grade open-weight LLM inference
@@ -179,14 +179,15 @@ footer p { font-size: 0.8rem; color: var(--faint); }
   <table>
     <tr><th>Tier</th><th>Role</th><th>Recommended model</th><th>Traffic share</th></tr>
     <tr><td><strong>Fast</strong></td><td>Completions, commit messages, quick Q&amp;A</td><td>Qwen2.5-Coder-7B (AWQ/FP8)</td><td>30–50% of requests, ~10% of tokens</td></tr>
-    <tr><td><strong>Default</strong></td><td>Chat, code generation, agentic development</td><td>Qwen3-Coder-30B-A3B MoE (FP8)</td><td>40–60% of requests, ~60% of tokens</td></tr>
-    <tr><td><strong>Reasoning</strong></td><td>Hard debugging, architecture analysis</td><td>gpt-oss-120B / DeepSeek-R1-Distill-32B / Foundry serverless R1</td><td>5–10% of requests, ~30% of tokens</td></tr>
+    <tr><td><strong>Default</strong></td><td>Chat, code generation, agentic development</td><td>Qwen3-Coder-Next 80B-A3B MoE (FP8 on 2 GPUs, or INT4 on one 80 GB)</td><td>40–60% of requests, ~60% of tokens</td></tr>
+    <tr><td><strong>Reasoning</strong></td><td>Hard debugging, architecture analysis</td><td>gpt-oss-120B / Qwen3.8-27B (thinking) / Foundry serverless DeepSeek-V4</td><td>5–10% of requests, ~30% of tokens</td></tr>
   </table>
-  <div class="callout"><strong>Frontier watch (July 2026):</strong> DeepSeek-V4 (Pro 1.6T / Flash
-  284B, 1M context, MIT), GLM-5.2 (753B, 1M context, MIT) and Kimi K2.7-Code (1T, Modified MIT)
-  lead the open frontier; Kimi K3 (2.8T, 1M context) releases open weights 2026-07-27 — until
-  then it is hosted-API only. Trial frontier models via serverless APIs before committing
-  cluster capacity.</div>
+  <div class="callout"><strong>Frontier watch (August 2026):</strong> DeepSeek's official V4
+  releases (V4-Pro-0813 1.7T / V4-Flash-0731 304B — 1M context, MIT, built-in DSpark speculative
+  decoding), Qwen3.8 (Apache 27B workhorse; 2.4T flagship under a custom license), GLM-5.2
+  (753B, 1M context, MIT) and Kimi K3 (2.8T — weights now open under a custom license, needs
+  vLLM ≥ 0.27) lead the open frontier, and Meta is back under Apache-2.0 with Muse-Glimmer-30B.
+  Trial frontier models via serverless APIs before committing cluster capacity.</div>
   <p>Full catalog with hardware footprints: the interactive model picker in the repository.</p>
 </div></section>
 
@@ -195,8 +196,9 @@ footer p { font-size: 0.8rem; color: var(--faint); }
   <h2>Serve with vLLM on Kubernetes</h2>
   <p><strong>When to use:</strong> Tracks A and B2. Ollama is a workstation tool; 20+ concurrent developers need vLLM-class continuous batching.</p>
   <pre>args:
-  - --model=/models/qwen3-coder-30b-fp8
-  - --served-model-name=qwen3-coder-30b
+  - --model=/models/qwen3-coder-next-fp8
+  - --served-model-name=qwen3-coder-next
+  - --tensor-parallel-size=2       # FP8 80B rides on an NVLink pair; INT4 fits one 80 GB
   - --max-model-len=65536          # context cap = concurrency budget
   - --max-num-seqs=32
   - --gpu-memory-utilization=0.92
@@ -226,6 +228,7 @@ footer p { font-size: 0.8rem; color: var(--faint); }
     <li>Request GPU quota (NCads A100 v4 / NCads H100 v5) before anything else — approval can take days.</li>
     <li>Base pool reserved (1–3 yr, 30–60% off PAYG); burst pool on spot with eviction-tolerant replicas only.</li>
     <li>Deleting a KAITO workspace does not delete its GPU node pool — delete it explicitly to stop billing.</li>
+    <li>The add-on's bundled vLLM lags upstream — check it supports your target model, or use self-managed vLLM (B2) for the newest releases.</li>
   </ul>
   <p>KAITO workspaces, node pools, KEDA autoscaling, Azure-native security: chapter 04 · AKS.</p>
 </div></section>
@@ -328,7 +331,7 @@ az cognitiveservices account deployment create -n llm-foundry -g $RG \
     <li>Prompts and completions processed in memory, never persisted; metadata-only logging</li>
     <li>Weights pulled from official Hugging Face orgs only; revisions pinned, checksums verified</li>
     <li>Engine pods have no internet egress after weights are cached (<code>HF_HUB_OFFLINE=1</code>)</li>
-    <li>License review before catalog entry: Apache-2.0/MIT safe defaults; Llama/Gemma need legal sign-off; Kimi Modified MIT needs clause review</li>
+    <li>License review before catalog entry: Apache-2.0/MIT safe defaults (incl. Gemma 4, Meta Muse); Llama and Gemma 3 need legal sign-off; Kimi K2.7 Modified MIT needs clause review; Kimi K3 and Qwen3.8-2.4T ship custom licenses</li>
     <li>Per-key RPM/TPM limits and budgets — a runaway agent loop is a governance event, not an outage</li>
     <li>Audit metadata (who, which model, when, token counts) retained ≥ 1 year</li>
   </ul>
@@ -338,7 +341,7 @@ az cognitiveservices account deployment create -n llm-foundry -g $RG \
 <footer>
   <div class="wrap">
     <p><strong>Verification note</strong> — model names, VM SKUs, prices, and operator versions were
-    checked against public documentation as of July 2026. GPU pricing and model availability drift
+    checked against public documentation as of August 2026. GPU pricing and model availability drift
     monthly; re-verify against primary sources before committing budget.</p>
     <p style="margin-top:8px">
       Full playbook, interactive model picker, and updates:

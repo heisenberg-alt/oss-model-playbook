@@ -51,8 +51,8 @@ model_list:
   # ---- default tier (load-balanced across replicas incl. spot) ----
   - model_name: default
     litellm_params:
-      model: openai/qwen3-coder-30b
-      api_base: http://vllm-qwen3-coder-30b.llm.svc:8000/v1
+      model: openai/qwen3-coder-next
+      api_base: http://vllm-qwen3-coder-next.llm.svc:8000/v1
       api_key: "none"
 
   # ---- reasoning tier on Foundry serverless ----
@@ -113,7 +113,7 @@ the team key; expose `default` and `reasoning` as selectable models.
 // Continue example (~/.continue/config.json)
 {
   "models": [{
-    "title": "default (qwen3-coder-30b)",
+    "title": "default (qwen3-coder-next)",
     "provider": "openai",
     "apiBase": "https://llm.internal.example.com/v1",
     "apiKey": "<team-virtual-key>",
@@ -147,5 +147,6 @@ team workloads.
 | Request/response logging OFF by default | Prompts contain proprietary code — log metadata only ([09-security-governance.md](09-security-governance.md)) |
 | Model aliasing (`default`, `fast`, `reasoning`) | Swap underlying models without touching a single IDE config |
 
-That last row is the quiet superpower: upgrading `default` from Qwen3-Coder-30B to next year's
-model is a gateway config change and a canary, not a 100-dev migration.
+That last row is the quiet superpower: upgrading `default` from one model generation to the
+next (as this playbook just did, Qwen3-Coder-30B → Coder-Next) is a gateway config change and
+a canary, not a 100-dev migration.

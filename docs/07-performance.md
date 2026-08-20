@@ -91,7 +91,9 @@ KV thrash (recomputes destroy TPOT); too low ⇒ idle GPU.
 ### 6 · Speculative decoding
 Draft model or n-gram speculation: 1.5–2.5× single-stream decode speedup at low-moderate
 batch sizes; benefit shrinks as batch grows. Best on the reasoning tier (long, low-concurrency
-generations). Benchmark — it can *hurt* saturated throughput.
+generations). 2026 releases increasingly ship official draft heads (DeepSeek's DSpark is built
+into the V4-0731/0813 checkpoints; DFlash/EAGLE3 drafts exist for Qwen and Gemma) — prefer
+those over generic n-gram speculation. Benchmark — it can *hurt* saturated throughput.
 
 ### 7 · Tier separation (architecture, not a flag)
 Latency-critical completions on their own small-model replica; batch-friendly agent traffic on

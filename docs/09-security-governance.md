@@ -41,18 +41,18 @@
    have data-separation requirements — separate replicas per boundary.
 4. Foundry serverless traffic is processed by Azure per its data-privacy terms (not used for
    training); document that reasoning-tier traffic leaves the cluster and give teams a
-   cluster-only opt-out (`reasoning-local` alias → R1-Distill-32B replica).
+   cluster-only opt-out (`reasoning-local` alias → gpt-oss-120B or Qwen3.8-27B replica).
 
 ## 5. Model license compliance
 
 | License | Models | Enterprise posture |
 |---|---|---|
-| Apache-2.0 | Qwen (most, incl. Qwen3.6), Mistral/Devstral, gpt-oss | ✓ Use freely, attribute |
-| MIT | DeepSeek (R1/V3/V4), Phi, GLM-4.6/5.1/5.2 | ✓ Use freely |
+| Apache-2.0 | Qwen (most, incl. Qwen3.8-27B / Qwen3-Coder-Next), Mistral/Devstral, gpt-oss, Gemma 4, Meta Muse-Glimmer | ✓ Use freely, attribute |
+| MIT | DeepSeek (V4/R1), Phi, GLM-5/5.1/5.2, Ling 3.0 | ✓ Use freely |
 | Modified MIT | Kimi K2 / K2.7-Code (attribution clause at very large scale) | ✓ with legal review of the clause |
-| TBD (weights due 2026-07-27) | Kimi K3 | Pending — hosted-API only for now; review license at weights release before catalog entry |
-| Llama Community | Llama 3.x | ⚠ AUP + 700M-MAU clause; legal sign-off; redistribution rules |
-| Gemma Terms | Gemma 3 | ⚠ Use-restriction policy; legal sign-off |
+| Custom per-model | Kimi K3 ("Kimi K3 License", weights released Jul 2026), Qwen3.8-2.4T ("qwen3.8-max"), NVIDIA Nemotron (Open Model License), MiniMax (community license) | Legal review before catalog entry |
+| Llama Community | Llama 3.x / 4 | ⚠ AUP + 700M-MAU clause; legal sign-off; redistribution rules |
+| Gemma Terms | Gemma 3 (Gemma 4 moved to Apache-2.0) | ⚠ Use-restriction policy; legal sign-off |
 
 Process: models enter the catalog via a lightweight review (license, provenance, eval results);
 the gateway's `model_list` **is** the allow-list — anything not in it is unreachable.

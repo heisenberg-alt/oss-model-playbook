@@ -5,7 +5,7 @@ relevant for open weights:
 
 | Mode | Billing | Models | Content filtering | Best for |
 |---|---|---|---|---|
-| **Standard / serverless API** | Per token (+ minimal endpoint infra/min for serverless) | Flagship open models sold via Azure: Llama, DeepSeek (R1/V3), Mistral, gpt-oss, Grok, Qwen (availability varies by region) | ✓ Built in | Spiky/low volume; reasoning escalation tier |
+| **Standard / serverless API** | Per token (+ minimal endpoint infra/min for serverless) | Flagship open models sold via Azure: Llama, DeepSeek, Mistral, gpt-oss, Grok, Qwen (catalog and availability vary by region) | ✓ Built in | Spiky/low volume; reasoning escalation tier |
 | **Managed compute** | Per compute-minute (dedicated GPU VMs) | Any catalog model incl. Hugging Face collection, NVIDIA NIMs, custom/fine-tuned | ✗ BYO guardrails | Sustained volume without cluster ops; custom models |
 
 > Requires an AI Hub / Foundry project. Managed compute needs **dedicated VM quota**
@@ -55,7 +55,7 @@ Notes:
 ## 3. Managed compute (C2)
 
 Deploys the model onto dedicated GPU VMs that Azure operates (managed online endpoint under
-the hood). Portal: Model catalog → model (e.g. a Hugging Face `Qwen/Qwen3-Coder-30B-A3B-Instruct`)
+the hood). Portal: Model catalog → model (e.g. a Hugging Face `Qwen/Qwen3-Coder-Next`)
 → Deploy → Managed compute → pick instance type + count.
 
 SDK example (Python, AzureML SDK v2 — managed compute rides on ML online endpoints):
@@ -73,8 +73,8 @@ ml.online_endpoints.begin_create_or_update(
 ml.online_deployments.begin_create_or_update(ManagedOnlineDeployment(
     name="blue",
     endpoint_name="qwen-coder-ep",
-    model="azureml://registries/HuggingFace/models/Qwen-Qwen3-Coder-30B-A3B-Instruct/labels/latest",
-    instance_type="Standard_NC24ads_A100_v4",
+    model="azureml://registries/HuggingFace/models/Qwen-Qwen3-Coder-Next/labels/latest",
+    instance_type="Standard_NC48ads_A100_v4",   # 2× A100 80GB — FP8 80B needs the pair
     instance_count=1,
 )).result()
 ```
@@ -101,7 +101,8 @@ model catalog/regional gaps; endpoint cold starts on redeploy.
 
 Even for Track A/B shops, use Foundry serverless for:
 
-1. **Reasoning tier** (5–10% of traffic) — R1-class quality without owning 2× H100.
+1. **Reasoning tier** (5–10% of traffic) — frontier-reasoning quality (DeepSeek-V4-class)
+   without owning the GPUs for it.
 2. **Burst overflow** — gateway routes to Foundry when local queue p95 exceeds SLO.
 3. **Model evaluation** — trial a new model serverless for a week before pulling weights into
    the cluster.

@@ -3,7 +3,8 @@
 Two sub-paths, same cluster foundation:
 
 - **B1 — KAITO (AI toolchain operator add-on)**: managed operator; one CRD deploys GPU nodes +
-  vLLM + model. Least effort, preset-driven. *(Add-on currently ships KAITO v0.6.0; verify.)*
+  vLLM + model. Least effort, catalog-driven. *(Upstream KAITO is v0.11.0 as of Aug 2026 —
+  verify what your add-on channel ships.)*
 - **B2 — Self-managed vLLM**: your own GPU node pools + the manifests from
   [03-onprem-kubernetes.md](03-onprem-kubernetes.md) §5. Full engine control (custom quants,
   spec decode, exact versions).
@@ -79,7 +80,11 @@ KAITO notes:
 - Deleting a workspace does **not** delete its GPU node pool — delete it explicitly
   (`az aks nodepool delete`) to stop billing.
 - Add-on constraints: Linux node pools only, NVIDIA instance types only, public regions.
-- KAITO also supports fine-tuning workspaces (QLoRA) on the same cluster — useful later.
+- **The bundled vLLM lags upstream** (v0.11.0 ships vLLM 0.22.x): the newest models — Kimi K3
+  (needs vLLM ≥ 0.27), GLM-5.2 (≥ 0.23) — require a custom runtime image or path B2.
+- v0.11 additions worth knowing: `ModelMirror` (stream weights from Azure Blob),
+  `MultiRoleInference` (prefill/decode disaggregation), InferenceSet scale-to-zero, and
+  QLoRA fine-tuning workspaces on the same cluster.
 
 ## 4. Path B2 — self-managed GPU node pools + vLLM
 

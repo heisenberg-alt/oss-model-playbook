@@ -34,12 +34,14 @@ Serve **three models**, route by task (the gateway does this — [06-gateway-and
 | Tier | Role | Recommended model | Weights (quantized) | Traffic share |
 |---|---|---|---|---|
 | **Fast** | Completions, commit msgs, quick Q&A | Qwen2.5-Coder-7B (AWQ/FP8) | ~5–8 GB | 30–50% of requests, 10% of tokens |
-| **Default** | Chat, code gen, agentic dev | Qwen3-Coder-30B-A3B (FP8) | ~20–32 GB | 40–60% of requests, 60% of tokens |
-| **Reasoning** | Hard debugging, architecture | gpt-oss-120B / DeepSeek-R1-Distill-32B / Qwen3-235B | 20–70 GB | 5–10% of requests, 30% of tokens |
+| **Default** | Chat, code gen, agentic dev | Qwen3-Coder-Next 80B-A3B (FP8) | ~40 GB INT4 / ~80 GB FP8 | 40–60% of requests, 60% of tokens |
+| **Reasoning** | Hard debugging, architecture | gpt-oss-120B / Qwen3.8-27B (thinking) / serverless DeepSeek-V4 | 27–65 GB | 5–10% of requests, 30% of tokens |
 
-Why MoE for the default tier: Qwen3-Coder-30B-A3B activates only ~3B parameters/token →
-decode speed of a small model with near-32B quality; ideal throughput-per-GPU for the
-highest-volume tier.
+Why MoE for the default tier: Qwen3-Coder-Next activates only ~3B of its 80B parameters per
+token → decode speed of a small model with near-frontier agentic-coding quality; ideal
+throughput-per-GPU for the highest-volume tier. Single-GPU alternatives: the dense multimodal
+Qwen3.8-27B (FP8, ~27 GB) when vision and general chat matter, or the previous default
+Qwen3-Coder-30B-A3B (FP8, ~30 GB) — still the right call on 48 GB-class cards.
 
 ## 3. GPU memory budget
 
@@ -55,10 +57,14 @@ Practical planning numbers **per 1,000 tokens of context, per sequence**:
 | 32B dense | ~160 MB |
 | 70B dense | ~330 MB |
 
-Worked example — Qwen3-Coder-30B FP8 on one A100/H100 80GB:
+Worked example — Qwen3-Coder-30B-A3B FP8 (single-GPU budget default) on one A100/H100 80GB:
 weights ≈ 30 GB, overhead ≈ 4 GB → **~46 GB left for KV** → ~460K total cached tokens →
 e.g. **14 concurrent sequences at 32K context**, or 28 at 16K. This is why context length
 discipline matters more than parameter count for concurrency.
+
+The same method applies to Qwen3-Coder-Next (FP8 ≈ 80 GB → TP=2 across two 80 GB cards, or
+INT4 ≈ 40 GB on one). Note its hybrid attention (Gated DeltaNet layers) grows KV far slower
+with context than classic GQA — benchmark your build rather than extrapolating from the table.
 
 ## 4. Reference hardware configurations
 
@@ -75,7 +81,7 @@ discipline matters more than parameter count for concurrency.
 
 | Option | Hardware | Layout |
 |---|---|---|
-| On-prem | 1–2 nodes · 4× L40S or 2× H100 | Default ×2 replicas (HA), Fast ×1, Reasoning ×1 (R1-32B) |
+| On-prem | 1–2 nodes · 4× L40S or 2× H100 | Default ×2 replicas (HA), Fast ×1, Reasoning ×1 (Qwen3.8-27B) |
 | AKS | 2× NC24ads A100 v4 (base, reserved) + 1 spot node (burst) | Default ×2, Fast ×1 co-hosted; KAITO or vLLM |
 | Hybrid | 2 dedicated GPUs + Foundry serverless for reasoning tier | Most cost-efficient at this size |
 
@@ -89,6 +95,8 @@ discipline matters more than parameter count for concurrency.
 
 **Sizing heuristic: one 80 GB-class GPU per 20–25 developers** for mixed workloads on an
 efficient MoE default model; halve that density for agent-heavy teams (one GPU per 10–12 devs).
+On 48 GB cards (L40S) run the 30B-A3B budget default — Qwen3-Coder-Next wants an 80 GB card
+(INT4) or a pair (FP8, TP=2).
 
 ## 5. Availability math
 

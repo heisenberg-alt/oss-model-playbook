@@ -57,7 +57,7 @@ Hugging Face on every pod start:
 # model-downloader-job.yaml (one per model, or a loop script)
 apiVersion: batch/v1
 kind: Job
-metadata: { name: dl-qwen3-coder-30b, namespace: llm }
+metadata: { name: dl-qwen3-coder-next, namespace: llm }
 spec:
   template:
     spec:
@@ -71,8 +71,8 @@ spec:
         args:
           - pip install -q "huggingface_hub[hf_transfer]" &&
             HF_HUB_ENABLE_HF_TRANSFER=1 hf download
-            Qwen/Qwen3-Coder-30B-A3B-Instruct-FP8
-            --local-dir /models/qwen3-coder-30b-fp8
+            Qwen/Qwen3-Coder-Next-FP8
+            --local-dir /models/qwen3-coder-next-fp8
         env:
           - name: HF_TOKEN
             valueFrom: { secretKeyRef: { name: hf-token, key: token } }
@@ -87,19 +87,19 @@ S3 (MinIO), and set `HF_HUB_OFFLINE=1` on serving pods.
 
 ## 5. vLLM serving deployments
 
-### Default tier — Qwen3-Coder-30B-A3B (FP8), 1 GPU per replica
+### Default tier — Qwen3-Coder-Next 80B-A3B (FP8), 2 GPUs per replica (TP=2)
 
 ```yaml
 apiVersion: apps/v1
 kind: Deployment
-metadata: { name: vllm-qwen3-coder-30b, namespace: llm }
+metadata: { name: vllm-qwen3-coder-next, namespace: llm }
 spec:
   replicas: 2
-  selector: { matchLabels: { app: vllm-qwen3-coder-30b } }
+  selector: { matchLabels: { app: vllm-qwen3-coder-next } }
   strategy: { type: RollingUpdate, rollingUpdate: { maxSurge: 1, maxUnavailable: 0 } }
   template:
     metadata:
-      labels: { app: vllm-qwen3-coder-30b }
+      labels: { app: vllm-qwen3-coder-next }
       annotations:
         prometheus.io/scrape: "true"
         prometheus.io/port: "8000"
@@ -109,10 +109,11 @@ spec:
       tolerations: [{ key: nvidia.com/gpu, operator: Exists }]
       containers:
       - name: vllm
-        image: vllm/vllm-openai:latest   # pin a tested tag in prod
+        image: vllm/vllm-openai:v0.27.1   # pin a tested tag; 0.27.x covers the 2026 model wave
         args:
-          - --model=/models/qwen3-coder-30b-fp8
-          - --served-model-name=qwen3-coder-30b
+          - --model=/models/qwen3-coder-next-fp8
+          - --served-model-name=qwen3-coder-next
+          - --tensor-parallel-size=2       # NVLink-connected pair; see TP note below
           - --max-model-len=65536          # cap context; KV budget, see doc 02 §3
           - --max-num-seqs=32
           - --gpu-memory-utilization=0.92
@@ -122,8 +123,8 @@ spec:
           - --tool-call-parser=qwen3_coder # check parser name for your vLLM version
         ports: [{ containerPort: 8000 }]
         resources:
-          limits: { nvidia.com/gpu: "1", memory: 96Gi, cpu: "12" }
-          requests: { nvidia.com/gpu: "1", memory: 64Gi, cpu: "8" }
+          limits: { nvidia.com/gpu: "2", memory: 128Gi, cpu: "16" }
+          requests: { nvidia.com/gpu: "2", memory: 96Gi, cpu: "12" }
         volumeMounts:
           - { name: models, mountPath: /models, readOnly: true }
           - { name: shm, mountPath: /dev/shm }
@@ -146,11 +147,16 @@ spec:
 ---
 apiVersion: v1
 kind: Service
-metadata: { name: vllm-qwen3-coder-30b, namespace: llm }
+metadata: { name: vllm-qwen3-coder-next, namespace: llm }
 spec:
-  selector: { app: vllm-qwen3-coder-30b }
+  selector: { app: vllm-qwen3-coder-next }
   ports: [{ port: 8000, targetPort: 8000 }]
 ```
+
+Single-GPU variants (one 80 GB card per replica): drop `--tensor-parallel-size` and swap the
+model for an INT4 quant of Coder-Next (~40 GB), the dense multimodal `Qwen/Qwen3.8-27B-FP8`
+(~27 GB), or the previous default `Qwen/Qwen3-Coder-30B-A3B-Instruct-FP8` (~30 GB — the right
+choice on 48 GB L40S nodes).
 
 ### Fast tier — Qwen2.5-Coder-7B on a MIG slice
 
@@ -196,9 +202,9 @@ Scale on vLLM's `vllm:num_requests_waiting` (queued requests), not CPU:
 # Requires prometheus-adapter exposing vllm metrics as external/custom metrics
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
-metadata: { name: vllm-qwen3-coder-30b, namespace: llm }
+metadata: { name: vllm-qwen3-coder-next, namespace: llm }
 spec:
-  scaleTargetRef: { apiVersion: apps/v1, kind: Deployment, name: vllm-qwen3-coder-30b }
+  scaleTargetRef: { apiVersion: apps/v1, kind: Deployment, name: vllm-qwen3-coder-next }
   minReplicas: 2
   maxReplicas: 4          # bounded by physical GPUs on-prem
   metrics:

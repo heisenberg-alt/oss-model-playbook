@@ -71,7 +71,7 @@ The engine choice matters more than the model choice:
 Two sub-modes (Foundry model catalog):
 
 **C1 — Serverless API / standard deployment (pay-per-token)** — available for flagship open
-models sold through Azure (Llama, DeepSeek R1, Mistral, gpt-oss, Grok, etc.)
+models sold through Azure (Llama, DeepSeek, Mistral, gpt-oss, Grok, etc.)
 
 - ✓ Zero infrastructure. Per-token billing. Content filtering built in. Fastest time-to-first-request (minutes).
 - ✓ Great for spiky/low-volume usage and for the *reasoning escalation tier* while your main traffic runs on Track A/B.
@@ -110,9 +110,10 @@ GPU VMs that Azure operates, billed per compute-hour.
 
 **The hybrid pattern (most common at 50+):** dedicated GPUs (Track A/B) serve the default
 coder model at high utilization; the gateway routes frontier-reasoning requests (a few % of
-traffic) to serverless pay-per-token frontier models (DeepSeek-V4, GLM-5.2, Kimi-K2/K3).
-Best of both cost curves. (Kimi K3 — 2.8T MoE, 1M context — is hosted-API only until its
-weights release on 2026-07-27; self-hosting any of these is a multi-node cluster proposition.)
+traffic) to serverless pay-per-token frontier models (DeepSeek-V4, GLM-5.2, Kimi K3, Qwen3.8).
+Best of both cost curves. (All of these now publish open weights — K3 and Qwen3.8-2.4T under
+custom licenses — but at 0.3–2.8T parameters, self-hosting any of them is a multi-node cluster
+proposition; rent the frontier until utilization math says otherwise.)
 
 ## 5. What NOT to do
 
@@ -124,5 +125,6 @@ weights release on 2026-07-27; self-hosting any of these is a multi-node cluster
    routing, observability). See [06-gateway-and-devex.md](06-gateway-and-devex.md).
 4. **Don't run one giant model for everything.** A 3-tier catalog (fast / default coder /
    reasoning) cuts cost 3–5× vs. routing all traffic to the biggest model.
-5. **Don't skip license review.** Apache-2.0/MIT models (Qwen, DeepSeek, Mistral, gpt-oss) are
-   safe defaults; Llama and Gemma carry custom terms needing legal sign-off ([09-security-governance.md](09-security-governance.md)).
+5. **Don't skip license review.** Apache-2.0/MIT models (most Qwen, DeepSeek, Mistral, gpt-oss,
+   Gemma 4, Meta Muse) are safe defaults; Llama, Gemma 3, Kimi K3, and Qwen3.8-2.4T carry custom
+   terms needing legal sign-off ([09-security-governance.md](09-security-governance.md)).

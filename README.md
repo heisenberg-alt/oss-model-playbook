@@ -22,7 +22,7 @@ or on Azure.
 3. Your track: [A](docs/03-onprem-kubernetes.md) · [B](docs/04-aks-azure.md) · [C](docs/05-foundry.md)
 4. [Gateway and developer experience](docs/06-gateway-and-devex.md) — applies to all tracks
 
-Full reading order and summary: [docs/README.md](docs/README.md)
+Full reading order: [docs/README.md](docs/README.md)
 
 ## Companion artifacts
 
@@ -31,7 +31,7 @@ Live site: **[heisenberg-alt.github.io/oss-model-playbook](https://heisenberg-al
 | Artifact | Purpose |
 |---|---|
 | [Team Cookbook (PDF)](https://heisenberg-alt.github.io/oss-model-playbook/cookbook.pdf) | Eleven condensed, print-ready recipes — download and share with your team (source: [cookbook.html](cookbook.html)) |
-| [Interactive model picker](https://heisenberg-alt.github.io/oss-model-playbook/oss-model-picker.html) | Task × hardware-tier model catalog, including the latest frontier releases (Kimi K3, GLM-5.2, DeepSeek-V4) |
+| [Interactive model picker](https://heisenberg-alt.github.io/oss-model-playbook/oss-model-picker.html) | Task × hardware-tier model catalog, including the latest frontier releases (DeepSeek-V4, Qwen3.8, Kimi K3, GLM-5.2) |
 
 ## The one-paragraph summary
 
@@ -45,7 +45,7 @@ active developers, autoscale on queue depth, and measure everything in TTFT / TP
 ## Verification disclaimer
 
 Model names, VM SKUs, prices, and operator versions were checked against public documentation
-as of **July 2026**. GPU pricing and model availability drift monthly — re-verify against the
+as of **August 2026**. GPU pricing and model availability drift monthly — re-verify against the
 linked primary sources before committing budget.
 
 ## Support this project
